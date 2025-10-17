@@ -1,5 +1,5 @@
-import * as ToggleGroup from "@radix-ui/react-toggle-group"
-import { Button } from "./button/Button"
+import * as ToggleGroup from "@radix-ui/react-toggle-group";
+import { CatalogButton } from "./catalogButton/CatalogButton";
 
 export default function HeaderLeft() {
   return (
@@ -8,9 +8,12 @@ export default function HeaderLeft() {
         ModaLab
       </span>
 
-      <Button>Каталог</Button>
+      <CatalogButton></CatalogButton>
 
-      <ToggleGroup.Root type="single" className="inline-flex rounded-md border border-gray-200">
+      <ToggleGroup.Root
+        type="single"
+        className="inline-flex rounded-md border border-gray-200"
+      >
         <ToggleGroup.Item
           value="women"
           className="hidden md:flex px-3 py-1 text-sm font-medium text-gray-700 hover:bg-gray-100"
@@ -26,5 +29,5 @@ export default function HeaderLeft() {
         </ToggleGroup.Item>
       </ToggleGroup.Root>
     </div>
-  )
+  );
 }
