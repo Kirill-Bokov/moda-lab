@@ -1,21 +1,28 @@
-import { Button } from "../button/Button"
-import type { CategoryCardProps } from "../../types/catalogTypes"
+import { Button } from "../button/Button";
+import type { CategoryCardProps } from "../../types/catalogTypes";
 
-export function CategoryCard({ category, onSubcategoryClick }: CategoryCardProps) {
+export function CategoryCard({ category, onCategoryClick }: CategoryCardProps) {
   return (
-    <div className="border rounded-lg p-4 flex flex-col items-start gap-2 bg-white shadow-sm">
-      <Button>{category.name}</Button>
-
-      <div className="flex flex-wrap gap-2 mt-2">
+    <div className="border rounded-lg p-4 flex-1 justify-center gap-2 bg-white shadow-sm h-full hover:shadow-md transition-shadow">
+      <div className="flex justify-center">
+        <Button
+          onClick={() => onCategoryClick(category.id)}
+          className="text-lg cursor-pointer"
+        >
+          {category.name}
+        </Button>
+      </div>
+      <div className="flex-col gap-2 mt-2">
         {category.subcategories?.map((sub) => (
           <Button
             key={sub.id}
-            onClick={() => onSubcategoryClick(category.id, sub.id)}
+            className="flex justify-start text-sm cursor-pointer"
+            onClick={() => onCategoryClick(category.id, sub.id)}
           >
             {sub.name}
           </Button>
         ))}
       </div>
     </div>
-  )
+  );
 }

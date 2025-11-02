@@ -1,20 +1,29 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useGetProductsByCategoryQuery } from "../app/api/catalogApi";
 import { useState } from "react";
+import { useSelector } from "react-redux";
+import type { RootState } from "../app/store";
 
 export default function Category() {
-  const { subcategoryId } = useParams<{ subcategoryId: string }>();
+  const gender = useSelector((state: RootState) => state.gender.value);
+  const { categoryId, subcategoryId } = useParams<{
+    categoryId?: string;
+    subcategoryId?: string;
+  }>();
+  const idToFetch = subcategoryId ?? categoryId;
   const navigate = useNavigate();
-  const [showFilters, setShowFilters] = useState(false);
-
   const {
     data: products,
     isLoading,
     error,
   } = useGetProductsByCategoryQuery({
-    categoryId: Number(subcategoryId),
+    categoryId: Number(idToFetch),
+    gender,
+    page: 1,
+    limit: 20,
   });
 
+  const [showFilters, setShowFilters] = useState(false);
   if (isLoading) return <p>Загрузка товаров...</p>;
   if (error) return <p>Ошибка при загрузке товаров</p>;
 
@@ -24,8 +33,6 @@ export default function Category() {
 
   return (
     <div className="container mx-auto px-4 py-6">
-
-      {/* Панель фильтров */}
       <div className="bg-gray-200 p-4 rounded mb-6">
         <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2 text-sm font-medium mb-2">
           <button className="text-left">Сортировка ↓</button>
@@ -65,7 +72,6 @@ export default function Category() {
         )}
       </div>
 
-      {/* Сетка товаров */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
         {products?.map((product) => (
           <div

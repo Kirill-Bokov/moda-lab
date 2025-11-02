@@ -1,10 +1,13 @@
 export default function HeaderSearch() {
   return (
-    <div className="flex justify-start">
+    <div className="flex justify-start hover:shadow-md transition-shadow">
       <div className="relative w-full">
         <input
+          id="search"
+          name="search"
           type="text"
           placeholder="Поиск товаров..."
+          autoComplete="off"
           className="w-full rounded-md border border-gray-300 bg-white px-4 py-2 pl-10 text-sm placeholder-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition"
         />
         <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">

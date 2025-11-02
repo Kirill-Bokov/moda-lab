@@ -10,6 +10,7 @@ export default function AppRouter() {
       <Route path="/" element={<Home />} />
       <Route path="/catalog" element={<Catalog />} />
       <Route path="/category/:categoryId/:subcategoryId" element={<Category />} />
+      <Route path="/category/:categoryId" element={<Category />} />
       <Route path="/product/:productId" element={<Product />} />
     </Routes>
   )

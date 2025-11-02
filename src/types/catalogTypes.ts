@@ -18,12 +18,7 @@ export interface Attribute {
   attribValue: string
 }
 
-export interface ProductWithAttributes {
-  product: Product
-  attributes: Attribute[]
-}
-
 export type CategoryCardProps = {
   category: Category
-  onSubcategoryClick: (categoryId: number, subcategoryId: number) => void
+  onCategoryClick: (categoryId: number, subcategoryId?: number) => void
 }
