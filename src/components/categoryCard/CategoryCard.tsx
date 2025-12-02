@@ -1,6 +1,9 @@
 import { Button } from "../button/Button";
-import type { CategoryCardProps } from "../../types/catalogTypes";
-
+import type { Category } from "../../types/catalogTypes";
+type CategoryCardProps = {
+  category: Category;
+  onCategoryClick: (categoryId: number, subcategoryId?: number) => void;
+};
 export function CategoryCard({ category, onCategoryClick }: CategoryCardProps) {
   return (
     <div className="border rounded-lg p-4 flex-1 justify-center gap-2 bg-white shadow-sm h-full hover:shadow-md transition-shadow">

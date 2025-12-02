@@ -17,6 +17,13 @@ export const catalogApi = createApi({
         return response;
       },
     }),
+    getCategoryAttributes: builder.query<Attribute[], number>({
+      query: (categoryId) => `categories/attributes/${categoryId}`,
+      transformResponse: (response: Attribute[]) => {
+        console.log("getCategoryAttributes response:", response);
+        return response;
+      },
+    }),
 
     getProductsByCategory: builder.query<
       Product[],
@@ -28,10 +35,8 @@ export const catalogApi = createApi({
         gender: string;
       }
     >({
-      query: ({ categoryId, page = 1, limit = 30, filter, gender }) => {
+      query: ({ categoryId, filter, gender }) => {
         const params = new URLSearchParams({
-          page: String(page),
-          limit: String(limit),
         });
         if (filter && filter.length > 0) {
           params.append("filter", JSON.stringify(filter));
@@ -57,6 +62,7 @@ export const catalogApi = createApi({
 
 export const {
   useGetCategoriesQuery,
+  useGetCategoryAttributesQuery,
   useGetProductsByCategoryQuery,
   useGetProductByIdQuery,
 } = catalogApi;
