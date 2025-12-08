@@ -7,6 +7,9 @@ type ProductGridProps = {
 };
 
 export function ProductGrid({ products, onProductClick }: ProductGridProps) {
+  if (!products || products.length === 0) {
+    return <p>База данных пуста</p>;
+  }
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
       {products?.map((product) => (

@@ -11,7 +11,7 @@ export function CategoryAttributes({ attributes }: CategoryAttributesProps) {
       {attributes?.map((attribute) => {
         const id = Number(attribute.attributeId);
         return (
-          <AttributeItem key={id} attributeId={id} values={attribute.values} />
+          <AttributeItem key={id} attributeId={id} attributeName={attribute.attributeName} values={attribute.values} />
         );
       })}
     </div>
