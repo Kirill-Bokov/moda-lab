@@ -1,6 +1,7 @@
 export interface Attribute {
   id: number
   name: string
+  values?: { id: number; value: string }[]
 }
 
 export interface AttributeValue {
@@ -14,12 +15,23 @@ export interface VariantAttributeValue {
   value: AttributeValue
 }
 
+export interface ProductSize {
+  id: number
+  size: string
+  stock: number
+}
+
+export interface ProductImage {
+  id: number
+  url: string
+}
+
 export interface ProductVariant {
   id: number
   sku: string
   price: string
-  stock: number
-  images: string[]
+  images: ProductImage[]
+  sizes: ProductSize[]
   attributeValues: VariantAttributeValue[]
 }
 
@@ -29,7 +41,7 @@ export interface ProductCategory {
   gender: string
 }
 
-export interface Product {
+export interface ProductCard {
   id: number
   name: string
   description: string

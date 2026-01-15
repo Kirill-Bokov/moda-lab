@@ -7,7 +7,7 @@ type ProductCardProps = {
 
 export function ProductCard({ product, onClick }: ProductCardProps) {
   const firstImageUrl = product.variant_images
-  ? product.variant_images.split(",")[0].trim()
+  ? product.variant_images[0]
   : undefined;
 
   return (

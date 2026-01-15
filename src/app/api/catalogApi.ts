@@ -1,68 +1,63 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import type { Category, Product, Attribute } from "../../types/catalogTypes";
+import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react"
+import type { Category, Product, Attribute } from "../../types/catalogTypes"
+import type { Gender } from "../slices/genderSlice"
+import type { ProductCard } from "../../types/productTypes"
+const GENDER_ATTRIBUTE_ID = 6
+
+const genderToValueIdMap: Record<Gender, number> = {
+  male: 24,
+  female: 25,
+  unisex: 26,
+}
 
 export const catalogApi = createApi({
   reducerPath: "catalogApi",
-  baseQuery: fetchBaseQuery({ baseUrl: "http://95.81.114.17:3000/api" }),
-
+  baseQuery: fetchBaseQuery({
+    baseUrl: "http://95.81.114.17:3000/api",
+  }),
   endpoints: (builder) => ({
-    getCategories: builder.query<Category[], { gender: string }>({
-      query: ({ gender }) => {
-        const params = new URLSearchParams();
-        params.append("gender", gender);
-        return `categories?${params.toString()}`;
-      },
-      transformResponse: (response: Category[]) => {
-        console.log("getCategories response:", response);
-        return response;
-      },
+    getCategories: builder.query<Category[], { gender: Gender }>({
+      query: ({ gender }) => `categories?gender=${gender}`,
     }),
+
     getCategoryAttributes: builder.query<Attribute[], number>({
       query: (categoryId) => `categories/attributes/${categoryId}`,
-      transformResponse: (response: Attribute[]) => {
-        console.log("getCategoryAttributes response:", response);
-        return response;
-      },
     }),
 
     getProductsByCategory: builder.query<
       Product[],
       {
-        categoryId: number;
-        page?: number;
-        limit?: number;
-        filter?: Attribute[];
-        gender: string;
+        categoryId: number
+        filter?: Attribute[]
+        gender: Gender
       }
     >({
-      query: ({ categoryId, filter, gender }) => {
-        const params = new URLSearchParams({
-        });
-        if (filter && filter.length > 0) {
-          params.append("filter", JSON.stringify(filter));
+      query: ({ categoryId, filter = [], gender }) => {
+        const params = new URLSearchParams()
+
+        const genderFilter = {
+          attributeId: GENDER_ATTRIBUTE_ID,
+          valueId: genderToValueIdMap[gender],
         }
-        params.append("gender", gender);
-        return `products/category/${categoryId}?${params.toString()}`;
-      },
-      transformResponse: (response: Product[]) => {
-        console.log("getProductsByCategory response:", response);
-        return response;
+
+        const finalFilter = [genderFilter, ...filter]
+
+        params.append("filter", JSON.stringify(finalFilter))
+
+        return `products/category/${categoryId}?${params.toString()}`
       },
     }),
 
-    getProductById: builder.query<Product, number>({
+
+    getProductById: builder.query<ProductCard, number>({
       query: (productId) => `products/${productId}`,
-      transformResponse: (response: Product) => {
-        console.log("getProductById response:", response);
-        return response;
-      },
     }),
   }),
-});
+})
 
 export const {
   useGetCategoriesQuery,
   useGetCategoryAttributesQuery,
   useGetProductsByCategoryQuery,
   useGetProductByIdQuery,
-} = catalogApi;
+} = catalogApi

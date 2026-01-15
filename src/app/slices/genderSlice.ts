@@ -1,25 +1,22 @@
 import { createSlice } from "@reduxjs/toolkit"
 import type { PayloadAction } from "@reduxjs/toolkit"
 
+export type Gender = "unisex" | "male" | "female"
+
 interface GenderState {
-  value: "unisex" | "male" | "female"
+  value: Gender
 }
 
-const savedGender = localStorage.getItem("gender") as GenderState["value"] | null
-
 const initialState: GenderState = {
-  value: savedGender === "male" || savedGender === "female" || savedGender === "unisex"
-    ? savedGender
-    : "unisex",
+  value: "unisex",
 }
 
 export const genderSlice = createSlice({
   name: "gender",
   initialState,
   reducers: {
-    setGender: (state, action: PayloadAction<GenderState["value"]>) => {
+    setGender: (state, action: PayloadAction<Gender>) => {
       state.value = action.payload
-      localStorage.setItem("gender", action.payload)
     },
   },
 })
