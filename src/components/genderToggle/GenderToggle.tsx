@@ -1,51 +1,54 @@
 import * as ToggleGroup from "@radix-ui/react-toggle-group"
 import { useDispatch, useSelector } from "react-redux"
-import { useEffect } from "react"
 import type { RootState } from "../../app/store"
-import { setGender } from "../../app/slices/genderSlice"
+import { setSingleFilter } from "../../app/slices/filtersSlice"
+import { GENDER_ATTRIBUTE_ID, GENDER_VALUES } from "../../app/constants"
+import type { GenderKey } from "../../app/constants"
 
 export default function GenderToggle() {
   const dispatch = useDispatch()
-  const gender = useSelector((state: RootState) => state.gender.value)
 
-  useEffect(() => {
-    console.log("Текущее значение пола:", gender)
-  }, [gender])
+  const selectedGender = useSelector((state: RootState) => {
+    const value = state.filters.draft[GENDER_ATTRIBUTE_ID]?.[0]
+    if (value === GENDER_VALUES.male) return "male"
+    if (value === GENDER_VALUES.female) return "female"
+    return "unisex"
+  })
 
   const handleChange = (value: string) => {
     if (!value) return
-    const selectedGender = value === "male" ? "male" : "female"
-    dispatch(setGender(selectedGender))
-    console.log("Выбран пол:", selectedGender)
+
+    dispatch(
+      setSingleFilter({
+        attributeId: GENDER_ATTRIBUTE_ID,
+        valueId: GENDER_VALUES[value as GenderKey],
+      })
+    )
   }
 
   return (
     <ToggleGroup.Root
       type="single"
-      value={gender}
+      value={selectedGender}
       onValueChange={handleChange}
       className="inline-flex rounded-md border border-gray-200 overflow-hidden"
     >
       <ToggleGroup.Item
         value="female"
-        className={`hidden md:flex px-3 py-1 text-sm font-medium transition-colors hover:cursor-pointer
-          ${
-            gender === "female"
-              ? "bg-blue-500 text-white"
-              : "text-gray-700 hover:bg-gray-100"
-          }`}
+        className={selectedGender === "female"
+          ? "bg-blue-500 text-white"
+          : "text-gray-700 hover:bg-gray-100"
+        }
       >
         Женщинам
       </ToggleGroup.Item>
 
       <ToggleGroup.Item
         value="male"
-        className={`hidden md:flex px-3 py-1 text-sm font-medium transition-colors hover:cursor-pointer
-          ${
-            gender === "male"
-              ? "bg-blue-500 text-white"
-              : "text-gray-700 hover:bg-gray-100"
-          }`}
+        className={selectedGender === "male"
+          ? "bg-blue-500 text-white"
+          : "text-gray-700 hover:bg-gray-100"
+        }
       >
         Мужчинам
       </ToggleGroup.Item>

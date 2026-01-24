@@ -1,36 +1,47 @@
-import { useState } from "react";
-import type { Attribute } from "../../types/catalogTypes";
+import { useDispatch, useSelector } from "react-redux"
+import { useState } from "react"
+import { toggleFilter } from "../../app/slices/filtersSlice"
+import type { RootState } from "../../app/store"
+import type { AttributeApi } from "../../types/catalogTypes"
+
+type Props = AttributeApi
 
 export function AttributeItem({
   attributeId,
   attributeName,
   values,
-}: Attribute) {
-  const [open, setOpen] = useState(false);
-
-  const displayName = attributeName || "безымянный_атрибут";
+}: Props) {
+  const dispatch = useDispatch()
+  const draft = useSelector((state: RootState) => state.filters.draft)
+  const [open, setOpen] = useState(false)
+  const isSelected = (valueId: number) =>
+    draft[attributeId]?.includes(valueId) ?? false
+  console.log("AttributeItem values", values)
 
   return (
     <div className="mb-2 w-48">
-      <button
-        className="w-full text-left font-medium bg-white border rounded px-3 py-2 shadow-sm hover:bg-gray-50 flex justify-between items-center transition"
-        onClick={() => setOpen((prev) => !prev)}
-      >
-        {displayName}
-        <span className={`transition-transform ${open ? "rotate-180" : ""}`}>
-          ▼
-        </span>
+      <button onClick={() => setOpen(p => !p)}>
+        {attributeName}
       </button>
 
       {open && (
-        <div className="mt-1 ml-2 p-2 bg-gray-50 border rounded shadow-inner space-y-1">
-          {values.map((v) => (
-            <p key={`${attributeId}-${v}`} className="text-sm text-gray-700">
-              {v}
-            </p>
+        <div>
+          {values.map(v => (
+            <button
+              key={`${attributeId}-${v.id}`}
+              onClick={() => dispatch(toggleFilter({
+                attributeId,
+                valueId: v.id,
+              }))}
+              className={isSelected(v.id) ? "bg-teal-600 text-white" : ""}
+            >
+              {v.value}
+            </button>
           ))}
+
+
         </div>
       )}
     </div>
-  );
+  )
 }

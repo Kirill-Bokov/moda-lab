@@ -13,7 +13,10 @@ export function ProductCard({ product, onClick }: ProductCardProps) {
   return (
     <div
       className="border rounded-lg p-4 bg-white shadow-sm cursor-pointer hover:shadow-md transition"
-      onClick={() => onClick(product.product_id)}
+      onClick={() => {
+    console.log("ProductCard кликнут, variantId:", product.variant_id)
+    onClick(product.variant_id);
+  }}
     >
       <div className="w-full aspect-[4/5] mb-2 overflow-hidden rounded">
         {firstImageUrl ? (

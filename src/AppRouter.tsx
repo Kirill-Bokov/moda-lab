@@ -11,7 +11,7 @@ export default function AppRouter() {
       <Route path="/catalog" element={<Catalog />} />
       <Route path="/category/:categoryId/:subcategoryId" element={<Category />} />
       <Route path="/category/:categoryId" element={<Category />} />
-      <Route path="/product/:productId" element={<Product />} />
+      <Route path="/product/:variantId" element={<Product />} />
     </Routes>
   )
 }

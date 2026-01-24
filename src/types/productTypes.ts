@@ -27,7 +27,7 @@ export interface ProductImage {
 }
 
 export interface ProductVariant {
-  id: number
+  variant_id: number
   sku: string
   price: string
   images: ProductImage[]

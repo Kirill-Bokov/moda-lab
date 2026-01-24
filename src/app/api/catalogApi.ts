@@ -1,57 +1,73 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react"
-import type { Category, Product, Attribute } from "../../types/catalogTypes"
-import type { Gender } from "../slices/genderSlice"
+import type { Category, Product, AttributeApi } from "../../types/catalogTypes"
 import type { ProductCard } from "../../types/productTypes"
-const GENDER_ATTRIBUTE_ID = 6
-
-const genderToValueIdMap: Record<Gender, number> = {
-  male: 24,
-  female: 25,
-  unisex: 26,
-}
+import type { GenderString } from "../../types/catalogTypes"
 
 export const catalogApi = createApi({
   reducerPath: "catalogApi",
   baseQuery: fetchBaseQuery({
     baseUrl: "http://95.81.114.17:3000/api",
   }),
-  endpoints: (builder) => ({
-    getCategories: builder.query<Category[], { gender: Gender }>({
+  endpoints: builder => ({
+
+    getCategories: builder.query<Category[], { gender: GenderString }>({
       query: ({ gender }) => `categories?gender=${gender}`,
+      onQueryStarted: async (args, { queryFulfilled }) => {
+        console.log("getCategories args", args)
+        try {
+          const { data } = await queryFulfilled
+          console.log("getCategories response", data)
+        } catch (e) {
+          console.error("getCategories error", e)
+        }
+      },
     }),
 
-    getCategoryAttributes: builder.query<Attribute[], number>({
-      query: (categoryId) => `categories/attributes/${categoryId}`,
+    getCategoryAttributes: builder.query<AttributeApi[], number>({
+      query: categoryId => `categories/attributes/${categoryId}`,
+      onQueryStarted: async (categoryId, { queryFulfilled }) => {
+        console.log("getCategoryAttributes categoryId", categoryId)
+        try {
+          const { data } = await queryFulfilled
+          console.log("getCategoryAttributes response", data)
+        } catch (e) {
+          console.error("getCategoryAttributes error", e)
+        }
+      },
     }),
 
     getProductsByCategory: builder.query<
       Product[],
-      {
-        categoryId: number
-        filter?: Attribute[]
-        gender: Gender
-      }
+      { categoryId: number; filters?: string }
     >({
-      query: ({ categoryId, filter = [], gender }) => {
-        const params = new URLSearchParams()
-
-        const genderFilter = {
-          attributeId: GENDER_ATTRIBUTE_ID,
-          valueId: genderToValueIdMap[gender],
+      query: ({ categoryId, filters }) => ({
+        url: `/products/category/${categoryId}`,
+        params: filters ? { filter: filters } : undefined,
+      }),
+      onQueryStarted: async (args, { queryFulfilled }) => {
+        console.log("getProductsByCategory args", args)
+        try {
+          const { data } = await queryFulfilled
+          console.log("getProductsByCategory response", data)
+        } catch (e) {
+          console.error("getProductsByCategory error", e)
         }
-
-        const finalFilter = [genderFilter, ...filter]
-
-        params.append("filter", JSON.stringify(finalFilter))
-
-        return `products/category/${categoryId}?${params.toString()}`
       },
     }),
 
-
     getProductById: builder.query<ProductCard, number>({
-      query: (productId) => `products/${productId}`,
+      query: variantId => `products/${variantId}`,
+      onQueryStarted: async (variantId, { queryFulfilled }) => {
+        console.log("getProductById variantId", variantId)
+        try {
+          const { data } = await queryFulfilled
+          console.log("getProductById response", data)
+        } catch (e) {
+          console.error("getProductById error", e)
+        }
+      },
     }),
+
   }),
 })
 

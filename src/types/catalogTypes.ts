@@ -3,13 +3,14 @@ export interface Category {
   name: string
   subcategories: Category[]
 }
+export type GenderString = "male" | "female" | "unisex"
 
 export type Product = {
   product_id: number
   product_name: string
   product_description: string
   product_categoryId: number
-  variant_id: string
+  variant_id: number
   variant_images?: string
   variant_price: string
   variant_sku: string
@@ -17,8 +18,18 @@ export type Product = {
   sizes?: string
 }
 
-export interface Attribute {
+export type FilterItem = {
+  attributeId: string
+  valueId: string
+}
+
+export interface AttributeApi {
   attributeId: number
-  attributeName?: string
-  values: string[]
+  attributeName: string
+  values: AttributeValue[]
+}
+
+export interface AttributeValue {
+  id: number
+  value: string
 }

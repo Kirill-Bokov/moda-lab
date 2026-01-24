@@ -1,29 +1,57 @@
 import { configureStore } from "@reduxjs/toolkit"
-import genderReducer, { type Gender } from "./slices/genderSlice"
+import type { Middleware } from "@reduxjs/toolkit"
+import filtersReducer from "./slices/filtersSlice"
 import { catalogApi } from "./api/catalogApi"
-import { genderPersistenceMiddleware } from "./features/genderPersistance/genderPersistance"
+import {
+  loadFiltersFromStorage,
+  loadGenderAsFilter,
+} from "./features/filtersPersistance/filtersPersistance"
 
-function loadGenderFromStorage(): Gender {
-  const saved = localStorage.getItem("gender")
-  if (saved === "male" || saved === "female" || saved === "unisex") {
-    return saved
+function isActionWithType(action: unknown): action is { type: string; payload?: unknown } {
+  return (
+    typeof action === "object" &&
+    action !== null &&
+    "type" in action &&
+    typeof (action as any).type === "string"
+  )
+}
+
+const debugMiddleware: Middleware = store => next => action => {
+  if (!isActionWithType(action)) {
+    return next(action)
   }
-  return "unisex"
+
+  const isApiAction = action.type.startsWith("catalogApi/")
+  const isFiltersAction = action.type.startsWith("filters/")
+
+  if (isApiAction || isFiltersAction) {
+    console.log("ACTION", action.type)
+    console.log("PAYLOAD", action.payload)
+    console.log("STATE BEFORE", store.getState())
+  }
+
+  const result = next(action)
+
+  if (isApiAction || isFiltersAction) {
+    console.log("STATE AFTER", store.getState())
+  }
+
+  return result
 }
 
 export const store = configureStore({
   reducer: {
-    gender: genderReducer,
+    filters: filtersReducer,
     [catalogApi.reducerPath]: catalogApi.reducer,
   },
   preloadedState: {
-    gender: {
-      value: loadGenderFromStorage(),
-    },
+    filters:
+      loadFiltersFromStorage() ??
+      loadGenderAsFilter(),
   },
-  middleware: (getDefaultMiddleware) =>
+  middleware: getDefaultMiddleware =>
     getDefaultMiddleware()
-      .concat(genderPersistenceMiddleware)
+      .concat(debugMiddleware)
       .concat(catalogApi.middleware),
 })
 

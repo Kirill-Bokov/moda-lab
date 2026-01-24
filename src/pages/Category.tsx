@@ -1,38 +1,54 @@
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom"
 import {
   useGetCategoryAttributesQuery,
   useGetProductsByCategoryQuery,
-} from "../app/api/catalogApi";
-import { useSelector } from "react-redux";
-import type { RootState } from "../app/store";
-import { DataLoader } from "../components/dataLoader/DataLoader";
-import { CategoryAttributes } from "../components/categoryAttributes/categoryAttributes";
-import { ProductGrid } from "../components/productGrid/productGrid";
+} from "../app/api/catalogApi"
+import { useSelector } from "react-redux"
+import type { RootState } from "../app/store"
+import { DataLoader } from "../components/dataLoader/DataLoader"
+import { CategoryAttributes } from "../components/categoryAttributes/CategoryAttributes"
+import { ProductGrid } from "../components/productGrid/productGrid"
+import { skipToken } from "@reduxjs/toolkit/query/react"
+import { selectAppliedFiltersQuery } from "../app/selectors/filtersSelectors"
 
 export default function Category() {
-  const gender = useSelector((state: RootState) => state.gender.value);
   const { categoryId, subcategoryId } = useParams<{
-    categoryId?: string;
-    subcategoryId?: string;
-  }>();
-  const idToFetch = subcategoryId ?? categoryId;
-  const navigate = useNavigate();
+    categoryId?: string
+    subcategoryId?: string
+  }>()
+  const idToFetch = subcategoryId ?? categoryId
+  const navigate = useNavigate()
 
-  const { data: products, isLoading: productsLoading, error: productsError } =
-    useGetProductsByCategoryQuery({
-      categoryId: Number(idToFetch),
-      gender
-    });
+  const appliedFiltersQuery = useSelector((s: RootState) =>
+    selectAppliedFiltersQuery(s)
+  )
 
   const {
     data: attributes,
     isLoading: attributesLoading,
     error: attributesError,
-  } = useGetCategoryAttributesQuery(Number(idToFetch));
+  } = useGetCategoryAttributesQuery(idToFetch ? Number(idToFetch) : skipToken)
 
-  const handleProductClick = (productId: number) => {
-    navigate(`/product/${productId}`);
-  };
+  const queryArgs = idToFetch
+  ? {
+      categoryId: Number(idToFetch),
+      filters: appliedFiltersQuery,
+    }
+  : skipToken
+
+
+  const {
+    data: products,
+    isLoading: productsLoading,
+    error: productsError,
+  } = useGetProductsByCategoryQuery(queryArgs)
+
+  const handleVariantClick = (variantId: number) => {
+  navigate(`/product/${variantId}`);
+};
+console.log("Категория:", idToFetch)
+console.log("Применённые фильтры:", appliedFiltersQuery)
+console.log("Продукты из запроса:", products)
 
   return (
     <div className="container mx-auto px-4 py-6">
@@ -42,7 +58,11 @@ export default function Category() {
         loadingText="Загрузка атрибутов..."
         errorText="Ошибка при загрузке атрибутов"
       >
-        <CategoryAttributes attributes={attributes} />
+        {attributes && (
+          <CategoryAttributes
+            attributes={attributes}
+          />
+        )}
       </DataLoader>
 
       <DataLoader
@@ -51,8 +71,10 @@ export default function Category() {
         loadingText="Загрузка товаров..."
         errorText="Ошибка при загрузке товаров"
       >
-        <ProductGrid products={products} onProductClick={handleProductClick} />
+        {products && (
+          <ProductGrid products={products} onVariantClick={handleVariantClick} />
+        )}
       </DataLoader>
     </div>
-  );
+  )
 }
