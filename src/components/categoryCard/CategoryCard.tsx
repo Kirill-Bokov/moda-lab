@@ -1,5 +1,6 @@
 import { Button } from "../button/Button";
 import type { Category } from "../../types/catalogTypes";
+
 type CategoryCardProps = {
   category: Category;
   onCategoryClick: (categoryId: number, subcategoryId?: number) => void;

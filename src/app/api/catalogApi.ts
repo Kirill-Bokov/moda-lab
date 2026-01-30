@@ -6,7 +6,7 @@ import type { GenderString } from "../../types/catalogTypes"
 export const catalogApi = createApi({
   reducerPath: "catalogApi",
   baseQuery: fetchBaseQuery({
-    baseUrl: "http://95.81.114.17:3000/api",
+    baseUrl: import.meta.env.VITE_API_URL,
   }),
   endpoints: builder => ({
 
