@@ -14,7 +14,10 @@ export const productByIdMock = {
       id: 57,
       sku: "SHIRT-BLK",
       price: "3990.00",
-      images: ["https://img.ostin.com/upload/mdm/media_content/resize/ed5/867_1200_ba5a/172474120299.jpg?7", "https://img.ostin.com/upload/mdm/media_content/resize/7e3/867_1200_7c98/174052060299.jpg?6"],
+      images: [
+        { id: 1, url: "https://img.ostin.com/upload/mdm/media_content/resize/ed5/867_1200_ba5a/172474120299.jpg" },
+        { id: 2, url: "https://img.ostin.com/upload/mdm/media_content/resize/7e3/867_1200_7c98/174052060299.jpg" }
+      ],
       sizes: [
         { id: 169, size: "L", stock: 20 },
         { id: 170, size: "M", stock: 22 },
@@ -59,7 +62,10 @@ export const productByIdMock = {
       id: 58,
       sku: "SHIRT-BLU",
       price: "4290.00",
-      images: ["https://img.ostin.com/upload/mdm/media_content/resize/ed5/867_1200_ba5a/172474120299.jpg", "https://img.ostin.com/upload/mdm/media_content/resize/7e3/867_1200_7c98/174052060299.jpg"],
+      images: [
+        { id: 1, url: "https://img.ostin.com/upload/mdm/media_content/resize/ed5/867_1200_ba5a/172474120299.jpg" },
+        { id: 2, url: "https://img.ostin.com/upload/mdm/media_content/resize/7e3/867_1200_7c98/174052060299.jpg" }
+      ],
       sizes: [
         { id: 172, size: "L", stock: 35 },
         { id: 173, size: "M", stock: 44 },
