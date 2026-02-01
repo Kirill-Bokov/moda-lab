@@ -1,4 +1,37 @@
+import { useEffect, useRef, useState } from "react"
+import { useNavigate, useLocation } from "react-router-dom"
+
 export default function HeaderSearch() {
+  const [value, setValue] = useState("")
+  const navigate = useNavigate()
+  const location = useLocation()
+  const timerRef = useRef<number | null>(null)
+
+  useEffect(() => {
+    if (value.trim().length < 2) return
+
+    if (timerRef.current) {
+      clearTimeout(timerRef.current)
+    }
+
+    timerRef.current = window.setTimeout(() => {
+      const params = new URLSearchParams({ q: value.trim() })
+      navigate(`/search?${params.toString()}`)
+    }, 500)
+
+    return () => {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current)
+      }
+    }
+  }, [value, navigate])
+
+  useEffect(() => {
+    if (!location.pathname.startsWith("/search")) {
+      setValue("")
+    }
+  }, [location.pathname])
+
   return (
     <div className="flex justify-start hover:shadow-md transition-shadow">
       <div className="relative w-full">
@@ -6,6 +39,8 @@ export default function HeaderSearch() {
           id="search"
           name="search"
           type="text"
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
           placeholder="Поиск товаров..."
           autoComplete="off"
           className="w-full rounded-md border border-gray-300 bg-white px-4 py-2 pl-10 text-sm placeholder-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition"
@@ -28,5 +63,5 @@ export default function HeaderSearch() {
         </div>
       </div>
     </div>
-  );
+  )
 }
