@@ -1,4 +1,4 @@
-import { useParams, useNavigate } from "react-router-dom"
+import { useParams, useNavigate, useLocation } from "react-router-dom"
 import {
   useGetCategoryAttributesQuery,
   useGetProductsByCategoryQuery,
@@ -10,6 +10,7 @@ import { CategoryAttributes } from "../components/categoryAttributes/CategoryAtt
 import { ProductGrid } from "../components/productGrid/productGrid"
 import { skipToken } from "@reduxjs/toolkit/query/react"
 import { selectAppliedFiltersQuery } from "../app/selectors/filtersSelectors"
+import type { Product } from "../types/catalogTypes"
 
 export default function Category() {
   const { categoryId, subcategoryId } = useParams<{
@@ -18,6 +19,9 @@ export default function Category() {
   }>()
   const idToFetch = subcategoryId ?? categoryId
   const navigate = useNavigate()
+  const location = useLocation()
+  const searchResults = location.state?.searchResults as Product[] | undefined
+  const fromSearch = location.state?.fromSearch as boolean | undefined
 
   const appliedFiltersQuery = useSelector((s: RootState) =>
     selectAppliedFiltersQuery(s)
@@ -30,25 +34,30 @@ export default function Category() {
   } = useGetCategoryAttributesQuery(idToFetch ? Number(idToFetch) : skipToken)
 
   const queryArgs = idToFetch
-  ? {
+    ? {
       categoryId: Number(idToFetch),
       filters: appliedFiltersQuery,
     }
-  : skipToken
-
+    : skipToken
 
   const {
     data: products,
     isLoading: productsLoading,
     error: productsError,
-  } = useGetProductsByCategoryQuery(queryArgs)
+  } = useGetProductsByCategoryQuery(queryArgs, {
+    skip: fromSearch && !!searchResults,
+  })
+
+  const displayProducts = fromSearch && searchResults ? searchResults : products
 
   const handleVariantClick = (variantId: number) => {
-  navigate(`/product/${variantId}`);
-};
-console.log("Категория:", idToFetch)
-console.log("Применённые фильтры:", appliedFiltersQuery)
-console.log("Продукты из запроса:", products)
+    navigate(`/product/${variantId}`)
+  }
+
+  console.log("Категория:", idToFetch)
+  console.log("Применённые фильтры:", appliedFiltersQuery)
+  console.log("Из поиска:", fromSearch)
+  console.log("Продукты:", displayProducts)
 
   return (
     <div className="container mx-auto px-4 py-6">
@@ -58,21 +67,17 @@ console.log("Продукты из запроса:", products)
         loadingText="Загрузка атрибутов..."
         errorText="Ошибка при загрузке атрибутов"
       >
-        {attributes && (
-          <CategoryAttributes
-            attributes={attributes}
-          />
-        )}
+        {attributes && <CategoryAttributes attributes={attributes} />}
       </DataLoader>
 
       <DataLoader
-        isLoading={productsLoading}
+        isLoading={!fromSearch && productsLoading}
         error={productsError}
         loadingText="Загрузка товаров..."
         errorText="Ошибка при загрузке товаров"
       >
-        {products && (
-          <ProductGrid products={products} onVariantClick={handleVariantClick} />
+        {displayProducts && (
+          <ProductGrid products={displayProducts} onVariantClick={handleVariantClick} />
         )}
       </DataLoader>
     </div>
