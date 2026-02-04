@@ -2,6 +2,7 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react"
 import type { Category, Product, AttributeApi } from "../../types/catalogTypes"
 import type { ProductCard } from "../../types/productTypes"
 import type { GenderString } from "../../types/catalogTypes"
+import type { SearchResponse } from "../../types/searchTypes"
 
 export const catalogApi = createApi({
   reducerPath: "catalogApi",
@@ -68,6 +69,13 @@ export const catalogApi = createApi({
       },
     }),
 
+    searchProducts: builder.query<SearchResponse, string>({
+  query: q => ({
+    url: "/search",
+    params: { q },
+  }),
+})
+
   }),
 })
 
@@ -76,4 +84,5 @@ export const {
   useGetCategoryAttributesQuery,
   useGetProductsByCategoryQuery,
   useGetProductByIdQuery,
+  useSearchProductsQuery,
 } = catalogApi
