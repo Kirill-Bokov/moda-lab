@@ -1,6 +1,6 @@
 import { useSelector } from "react-redux"
 import { useState } from "react"
-import { AdjustmentsHorizontalIcon } from "@heroicons/react/24/outline"
+import { ShowAllFiltersButton } from "./ShowAllFiltersButton"
 import type { RootState } from "../../app/store"
 import type { AttributeApi } from "../../types/catalogTypes"
 import { AttributeItem } from "../attributeItem/AttributeItem"
@@ -52,14 +52,7 @@ export function CategoryAttributes({ attributes }: Props) {
           />
         ))}
 
-        <button
-          type="button"
-          onClick={() => setExpanded(p => !p)}
-          className="ml-auto flex items-center gap-1 rounded-lg px-2 py-1 transition-colors hover:bg-gray-300"
-        >
-          <AdjustmentsHorizontalIcon className="h-4 w-4" />
-          Все фильтры
-        </button>
+        <ShowAllFiltersButton expanded={expanded} setExpanded={setExpanded} />
 
         {expanded && (
           <div className="w-full flex flex-wrap gap-4 mt-2">

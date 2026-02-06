@@ -38,23 +38,24 @@ export const catalogApi = createApi({
     }),
 
     getProductsByCategory: builder.query<
-      Product[],
-      { categoryId: number; filters?: string }
-    >({
-      query: ({ categoryId, filters }) => ({
-        url: `/products/category/${categoryId}`,
-        params: filters ? { filter: filters } : undefined,
-      }),
-      onQueryStarted: async (args, { queryFulfilled }) => {
-        console.log("getProductsByCategory args", args)
-        try {
-          const { data } = await queryFulfilled
-          console.log("getProductsByCategory response", data)
-        } catch (e) {
-          console.error("getProductsByCategory error", e)
-        }
-      },
-    }),
+  Product[],
+  { categoryId: number; filters?: Record<string, string> }
+>({
+  query: ({ categoryId, filters }) => ({
+    url: `/products/category/${categoryId}`,
+    params: filters,
+  }),
+  onQueryStarted: async (args, { queryFulfilled }) => {
+    console.log("getProductsByCategory args", args)
+    try {
+      const { data } = await queryFulfilled
+      console.log("getProductsByCategory response", data)
+    } catch (e) {
+      console.error("getProductsByCategory error", e)
+    }
+  },
+}),
+
 
     getProductById: builder.query<ProductCard, number>({
       query: variantId => `products/${variantId}`,
@@ -70,12 +71,15 @@ export const catalogApi = createApi({
     }),
 
     searchProducts: builder.query<SearchResponse, string>({
-  query: q => ({
-    url: "/search",
-    params: { q },
-  }),
-})
+      query: q => ({
+        url: "/search",
+        params: { q },
+      }),
+    }),
 
+    getAttributes: builder.query<AttributeApi[], void>({
+      query: () => "/products/attributes",
+    }),
   }),
 })
 
@@ -85,4 +89,5 @@ export const {
   useGetProductsByCategoryQuery,
   useGetProductByIdQuery,
   useSearchProductsQuery,
+  useGetAttributesQuery
 } = catalogApi

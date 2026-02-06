@@ -6,6 +6,7 @@ import {
   loadFiltersFromStorage,
   loadGenderAsFilter,
 } from "./features/filtersPersistance/filtersPersistance"
+import sortReducer from "./slices/sortSlice"
 
 function isActionWithType(action: unknown): action is { type: string; payload?: unknown } {
   return (
@@ -42,6 +43,7 @@ const debugMiddleware: Middleware = store => next => action => {
 export const store = configureStore({
   reducer: {
     filters: filtersReducer,
+    sort: sortReducer,
     [catalogApi.reducerPath]: catalogApi.reducer,
   },
   preloadedState: {

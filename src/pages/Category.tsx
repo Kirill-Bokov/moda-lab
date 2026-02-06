@@ -1,4 +1,4 @@
-import { useParams, useNavigate, useSearchParams } from "react-router-dom"
+import { useParams, useNavigate } from "react-router-dom"
 import { useSelector } from "react-redux"
 import {
   useGetCategoryAttributesQuery,
@@ -9,16 +9,17 @@ import type { RootState } from "../app/store"
 import { DataLoader } from "../components/dataLoader/DataLoader"
 import { CategoryAttributes } from "../components/categoryAttributes/CategoryAttributes"
 import { ProductGrid } from "../components/productGrid/productGrid"
+import { SortSelector } from "../components/sortSelect/SortSelect"
 import { skipToken } from "@reduxjs/toolkit/query/react"
 
 export default function Category() {
   const { categoryId, subcategoryId } = useParams<{ categoryId?: string; subcategoryId?: string }>()
   const idToFetch = subcategoryId ?? categoryId
   const navigate = useNavigate()
-  const [searchParams] = useSearchParams()
-  const queryText = searchParams.get("q")
 
-  const appliedFiltersQuery = useSelector((s: RootState) => selectAppliedFiltersQuery(s))
+  // массив выбранных фильтров [{attributeId, valueId}, ...]
+  const appliedFilters = useSelector((s: RootState) => selectAppliedFiltersQuery(s))
+  const sortState = useSelector((s: RootState) => s.sort)
 
   const {
     data: attributes,
@@ -26,8 +27,20 @@ export default function Category() {
     error: attributesError,
   } = useGetCategoryAttributesQuery(idToFetch ? Number(idToFetch) : skipToken)
 
+  // формируем query-параметры корректно
+  const params: Record<string, any> = {}
+
+  if (appliedFilters && appliedFilters.length > 0) {
+    params.filter = appliedFilters // передаем массив напрямую, без JSON.stringify
+  }
+
+  if (sortState.sort && sortState.order) {
+    params.sort = sortState.sort
+    params.order = sortState.order
+  }
+
   const queryArgs = idToFetch
-    ? { categoryId: Number(idToFetch), filters: appliedFiltersQuery }
+    ? { categoryId: Number(idToFetch), filters: params }
     : skipToken
 
   const {
@@ -40,15 +53,8 @@ export default function Category() {
     navigate(`/product/${variantId}`)
   }
 
-  const showSearchQuery = queryText && queryText.length >= 2
-
   return (
     <div className="container mx-auto px-4 py-6 space-y-6">
-      {showSearchQuery && (
-        <p className="text-sm text-gray-500">
-          Результаты по запросу: <span className="font-medium">{queryText}</span>
-        </p>
-      )}
       <DataLoader
         isLoading={attributesLoading}
         error={attributesError}
@@ -57,6 +63,10 @@ export default function Category() {
       >
         {attributes && <CategoryAttributes attributes={attributes} />}
       </DataLoader>
+
+      {/* Сортировка */}
+      {idToFetch && <SortSelector />}
+
       <DataLoader
         isLoading={productsLoading}
         error={productsError}
