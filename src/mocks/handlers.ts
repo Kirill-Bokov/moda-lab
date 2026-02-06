@@ -1,8 +1,10 @@
+// Обновленный handlers.ts
 import { http, HttpResponse } from "msw"
 import { categoriesMock } from "./data/categories.mock"
 import { productByIdMock } from "./data/productById.mock"
 import { productByCategoryMock } from "./data/productByCategory.mock"
 import { categoryAttributesMock } from "./data/attributes.mock"
+import { searchProductsMock } from "./data/searchProducts.mock"
 
 export const handlers = [
   http.get("*/categories", ({ request }) => {
@@ -45,5 +47,24 @@ export const handlers = [
     const { variantId } = params
     console.log("MSW getProductById", { variantId })
     return HttpResponse.json(productByIdMock)
+  }),
+
+  // Поиск продуктов
+  http.get("*/search", ({ request }) => {
+    const url = new URL(request.url)
+    const query = url.searchParams.get("q") || ""
+    
+    console.log("MSW searchProducts", { query })
+
+    // Ищем точное совпадение или возвращаем пустой результат
+    const result = searchProductsMock[query] || {
+      query,
+      products: [],
+      total: 0,
+      categoryId: 0,
+      appliedFilters: [],
+    }
+
+    return HttpResponse.json(result)
   }),
 ]
