@@ -7,3 +7,12 @@ export const GENDER_VALUES = {
 } as const
 
 export type GenderKey = keyof typeof GENDER_VALUES
+
+export const BASE_ATTRIBUTE_NAMES = [
+  "Основной материал",
+  "Цвет",
+  "Размер",
+  "Цена",
+  "Тип",
+  "Посадка",
+]

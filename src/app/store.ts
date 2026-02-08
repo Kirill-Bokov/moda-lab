@@ -7,6 +7,7 @@ import {
   loadGenderAsFilter,
 } from "./features/filtersPersistance/filtersPersistance"
 import sortReducer from "./slices/sortSlice"
+import { filtersListener } from "./filtersListener"
 
 function isActionWithType(action: unknown): action is { type: string; payload?: unknown } {
   return (
@@ -53,6 +54,7 @@ export const store = configureStore({
   },
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware()
+      .concat(filtersListener.middleware)
       .concat(debugMiddleware)
       .concat(catalogApi.middleware),
 })
