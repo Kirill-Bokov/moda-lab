@@ -1,7 +1,7 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react"
-import type { Category, Product, AttributeApi } from "../../types/catalogTypes"
+import type { Category, ProductsByCategoryResponse, AttributeApi } from "../../types/catalogTypes"
 import type { ProductCard } from "../../types/productTypes"
-import type { GenderString } from "../../types/catalogTypes"
+import type { GenderString, FilterItem } from "../../types/catalogTypes"
 import type { SearchResponse } from "../../types/searchTypes"
 
 export const catalogApi = createApi({
@@ -38,23 +38,28 @@ export const catalogApi = createApi({
     }),
 
     getProductsByCategory: builder.query<
-  Product[],
-  { categoryId: number; filters?: Record<string, string> }
->({
-  query: ({ categoryId, filters }) => ({
-    url: `/products/category/${categoryId}`,
-    params: filters,
-  }),
-  onQueryStarted: async (args, { queryFulfilled }) => {
-    console.log("getProductsByCategory args", args)
-    try {
-      const { data } = await queryFulfilled
-      console.log("getProductsByCategory response", data)
-    } catch (e) {
-      console.error("getProductsByCategory error", e)
-    }
-  },
-}),
+      ProductsByCategoryResponse,
+      {
+        categoryId: number
+        page: number
+        limit: number
+        filters?: FilterItem[]
+        sort?: string
+        order?: "asc" | "desc"
+      }
+    >({
+      query: ({ categoryId, page, limit, filters, sort, order }) => ({
+        url: `/products/category/${categoryId}`,
+        params: {
+          page,
+          limit,
+          filter: filters ? JSON.stringify(filters) : undefined,
+          sort,
+          order,
+        },
+      }),
+    }),
+
 
 
     getProductById: builder.query<ProductCard, number>({

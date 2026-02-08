@@ -1,5 +1,6 @@
-import { useParams, useNavigate } from "react-router-dom"
+import { useParams, useNavigate, useSearchParams } from "react-router-dom"
 import { useSelector } from "react-redux"
+import { useEffect } from "react"
 import {
   useGetCategoryAttributesQuery,
   useGetProductsByCategoryQuery,
@@ -16,10 +17,23 @@ export default function Category() {
   const { categoryId, subcategoryId } = useParams<{ categoryId?: string; subcategoryId?: string }>()
   const idToFetch = subcategoryId ?? categoryId
   const navigate = useNavigate()
-
-  // массив выбранных фильтров [{attributeId, valueId}, ...]
+  const [searchParams, setSearchParams] = useSearchParams()
   const appliedFilters = useSelector((s: RootState) => selectAppliedFiltersQuery(s))
   const sortState = useSelector((s: RootState) => s.sort)
+  const page = Math.max(1, Number(searchParams.get("page") ?? 1))
+  const limit = Math.min(50, Math.max(5, Number(searchParams.get("limit") ?? 20)))
+
+  useEffect(() => {
+  const currentPage = searchParams.get("page")
+  if (currentPage !== "1") {
+    setSearchParams((prev: URLSearchParams) => {
+      prev.set("page", "1")
+      prev.set("limit", String(limit))
+      return prev
+    })
+  }
+}, [appliedFilters, sortState.sort, sortState.order, limit, searchParams, setSearchParams])
+
 
   const {
     data: attributes,
@@ -27,24 +41,19 @@ export default function Category() {
     error: attributesError,
   } = useGetCategoryAttributesQuery(idToFetch ? Number(idToFetch) : skipToken)
 
-  // формируем query-параметры корректно
-  const params: Record<string, any> = {}
-
-  if (appliedFilters && appliedFilters.length > 0) {
-    params.filter = appliedFilters // передаем массив напрямую, без JSON.stringify
-  }
-
-  if (sortState.sort && sortState.order) {
-    params.sort = sortState.sort
-    params.order = sortState.order
-  }
-
   const queryArgs = idToFetch
-    ? { categoryId: Number(idToFetch), filters: params }
+    ? {
+        categoryId: Number(idToFetch),
+        page,
+        limit,
+        filters: appliedFilters,
+        sort: sortState.sort ?? undefined,
+        order: sortState.order ?? undefined,
+      }
     : skipToken
 
   const {
-    data: products,
+    data: productsResponse,
     isLoading: productsLoading,
     error: productsError,
   } = useGetProductsByCategoryQuery(queryArgs)
@@ -64,7 +73,6 @@ export default function Category() {
         {attributes && <CategoryAttributes attributes={attributes} />}
       </DataLoader>
 
-      {/* Сортировка */}
       {idToFetch && <SortSelector />}
 
       <DataLoader
@@ -73,8 +81,8 @@ export default function Category() {
         loadingText="Загрузка товаров..."
         errorText="Ошибка при загрузке товаров"
       >
-        {products && (
-          <ProductGrid products={products} onVariantClick={handleVariantClick} />
+        {productsResponse && (
+          <ProductGrid response={productsResponse} onVariantClick={handleVariantClick} />
         )}
       </DataLoader>
     </div>
