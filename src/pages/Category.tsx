@@ -74,7 +74,7 @@ export default function Category() {
         {productsResponse && (
           <>
             <ProductGrid
-              response={productsResponse}
+              items={productsResponse.items}
               onVariantClick={handleVariantClick}
             />
 

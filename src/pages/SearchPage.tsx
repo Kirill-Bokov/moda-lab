@@ -40,7 +40,7 @@ export default function SearchPage() {
         {data && (
           <>
             <ProductGrid
-              products={data.products}
+              items={data.products}
               onVariantClick={handleVariantClick}
             />
 
