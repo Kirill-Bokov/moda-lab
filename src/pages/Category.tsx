@@ -1,6 +1,5 @@
 import { useParams, useNavigate, useSearchParams } from "react-router-dom"
 import { useSelector } from "react-redux"
-import { useEffect } from "react"
 import {
   useGetCategoryAttributesQuery,
   useGetProductsByCategoryQuery,
@@ -10,30 +9,21 @@ import type { RootState } from "../app/store"
 import { DataLoader } from "../components/dataLoader/DataLoader"
 import { CategoryAttributes } from "../components/categoryAttributes/CategoryAttributes"
 import { ProductGrid } from "../components/productGrid/productGrid"
-import { SortSelector } from "../components/sortSelect/SortSelect"
+import { SortSelector } from "../components/sortSelect/SortSelector"
+import { Pagination } from "../components/pagination/pagination"
 import { skipToken } from "@reduxjs/toolkit/query/react"
 
 export default function Category() {
   const { categoryId, subcategoryId } = useParams<{ categoryId?: string; subcategoryId?: string }>()
   const idToFetch = subcategoryId ?? categoryId
   const navigate = useNavigate()
-  const [searchParams, setSearchParams] = useSearchParams()
+  const [searchParams] = useSearchParams()
+
   const appliedFilters = useSelector((s: RootState) => selectAppliedFiltersQuery(s))
   const sortState = useSelector((s: RootState) => s.sort)
-  const page = Math.max(1, Number(searchParams.get("page") ?? 1))
-  const limit = Math.min(50, Math.max(5, Number(searchParams.get("limit") ?? 20)))
 
-  useEffect(() => {
-  const currentPage = searchParams.get("page")
-  if (currentPage !== "1") {
-    setSearchParams((prev: URLSearchParams) => {
-      prev.set("page", "1")
-      prev.set("limit", String(limit))
-      return prev
-    })
-  }
-}, [appliedFilters, sortState.sort, sortState.order, limit, searchParams, setSearchParams])
-
+  const page = Number(searchParams.get("page") ?? 1)
+  const limit = Number(searchParams.get("limit") ?? 20)
 
   const {
     data: attributes,
@@ -82,7 +72,14 @@ export default function Category() {
         errorText="Ошибка при загрузке товаров"
       >
         {productsResponse && (
-          <ProductGrid response={productsResponse} onVariantClick={handleVariantClick} />
+          <>
+            <ProductGrid
+              response={productsResponse}
+              onVariantClick={handleVariantClick}
+            />
+
+            <Pagination totalPages={productsResponse.meta.totalPages} />
+          </>
         )}
       </DataLoader>
     </div>

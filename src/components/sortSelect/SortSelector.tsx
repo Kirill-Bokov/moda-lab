@@ -1,4 +1,5 @@
 import { useDispatch, useSelector } from "react-redux"
+import { useSearchParams } from "react-router-dom"
 import type { RootState } from "../../app/store"
 import { setSort } from "../../app/slices/sortSlice"
 import type { SortOrder } from "../../app/slices/sortSlice"
@@ -12,9 +13,16 @@ const options = [
 export function SortSelector() {
   const dispatch = useDispatch()
   const sortState = useSelector((state: RootState) => state.sort)
+  const [, setSearchParams] = useSearchParams()
 
   const handleChange = (option: typeof options[number]) => {
     dispatch(setSort({ sort: option.sort, order: option.order }))
+
+    setSearchParams(prev => {
+      const next = new URLSearchParams(prev)
+      next.set("page", "1")
+      return next
+    })
   }
 
   return (

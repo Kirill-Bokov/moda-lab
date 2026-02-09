@@ -1,5 +1,6 @@
 import { useDispatch, useSelector } from "react-redux"
 import { useState, useRef, useLayoutEffect } from "react"
+import { useSearchParams } from "react-router-dom"
 import { ChevronDownIcon } from "@heroicons/react/24/outline"
 import { toggleFilter } from "../../app/slices/filtersSlice"
 import type { RootState } from "../../app/store"
@@ -13,6 +14,8 @@ export function AttributeItem({
   values,
 }: Props) {
   const dispatch = useDispatch()
+  const [, setSearchParams] = useSearchParams()
+
   const draft = useSelector((state: RootState) => state.filters.draft)
   const [open, setOpen] = useState(false)
   const [dropdownWidth, setDropdownWidth] = useState(0)
@@ -35,6 +38,21 @@ export function AttributeItem({
     setDropdownWidth(Math.max(headerWidth, maxItemWidth))
   }, [open, values])
 
+  const handleToggle = (valueId: number) => {
+    dispatch(
+      toggleFilter({
+        attributeId,
+        valueId,
+      })
+    )
+
+    setSearchParams(prev => {
+      const next = new URLSearchParams(prev)
+      next.set("page", "1")
+      return next
+    })
+  }
+
   return (
     <div
       className="relative inline-block min-w-[35px]"
@@ -53,6 +71,7 @@ export function AttributeItem({
           }`}
         />
       </div>
+
       {open && (
         <div
           className="absolute left-0 top-full z-10 pt-1"
@@ -64,16 +83,11 @@ export function AttributeItem({
               return (
                 <button
                   key={`${attributeId}-${v.id}`}
-                  ref={el => { itemRefs.current[index] = el }}
+                  ref={el => {
+                    itemRefs.current[index] = el
+                  }}
                   type="button"
-                  onClick={() =>
-                    dispatch(
-                      toggleFilter({
-                        attributeId,
-                        valueId: v.id,
-                      })
-                    )
-                  }
+                  onClick={() => handleToggle(v.id)}
                   className={[
                     "block w-full text-left px-2 py-1 transition-colors whitespace-nowrap",
                     selected
