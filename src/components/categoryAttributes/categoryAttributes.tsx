@@ -2,7 +2,7 @@ import { useState } from "react"
 import { ShowAllFiltersButton } from "./ShowAllFiltersButton"
 import type { AttributeApi } from "../../types/catalogTypes"
 import { AttributeItem } from "../attributeItem/AttributeItem"
-import { BASE_ATTRIBUTE_NAMES } from "../../app/constants"
+import { BASE_ATTRIBUTE_NAMES, GENDER_ATTRIBUTE_ID } from "../../app/constants"
 
 type Props = {
   attributes?: AttributeApi[]
@@ -12,7 +12,7 @@ export function CategoryAttributes({ attributes }: Props) {
   const [expanded, setExpanded] = useState(false)
 
   const filteredAttributes = attributes?.filter(
-    attr => attr.attributeName !== "Пол"
+    attr => attr.attributeId !== GENDER_ATTRIBUTE_ID
   )
 
   const baseAttributes = filteredAttributes?.filter(attr =>

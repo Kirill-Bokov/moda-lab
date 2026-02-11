@@ -16,9 +16,8 @@ const sortSlice = createSlice({
   name: "sort",
   initialState,
   reducers: {
-    setSort(state, action: PayloadAction<{ sort: string | null; order: SortOrder }>) {
-      state.sort = action.payload.sort
-      state.order = action.payload.order
+    setSort(_, action: PayloadAction<{ sort: string | null; order: SortOrder }>) {
+      return {...action.payload}
     },
     resetSort(state) {
       state.sort = null
