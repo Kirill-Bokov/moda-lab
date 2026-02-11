@@ -36,7 +36,7 @@ export interface AttributeValue {
 
 export type SortOption = {
   label: string
-  sort: string
+  sortBy: string
   order: "asc" | "desc"
 }
 

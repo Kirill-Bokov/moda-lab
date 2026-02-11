@@ -7,7 +7,7 @@ import {
 import { selectAppliedFiltersQuery } from "../app/selectors/filtersSelectors"
 import type { RootState } from "../app/store"
 import { DataLoader } from "../components/dataLoader/DataLoader"
-import { CategoryAttributes } from "../components/categoryAttributes/CategoryAttributes"
+import { CategoryAttributes } from "../components/categoryAttributes/categoryAttributes"
 import { ProductGrid } from "../components/productGrid/productGrid"
 import { SortSelector } from "../components/sortSelect/SortSelector"
 import { Pagination } from "../components/pagination/pagination"
@@ -37,7 +37,7 @@ export default function Category() {
         page,
         limit,
         filters: appliedFilters,
-        sort: sortState.sort ?? undefined,
+        sortBy: sortState.sortBy ?? undefined,
         order: sortState.order ?? undefined,
       }
     : skipToken

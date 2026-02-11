@@ -5,9 +5,9 @@ import { setSort } from "../../app/slices/sortSlice"
 import type { SortOrder } from "../../app/slices/sortSlice"
 
 const options = [
-  { label: "По умолчанию", sort: null, order: null },
-  { label: "По возрастанию цены", sort: "price", order: "asc" as SortOrder },
-  { label: "По убыванию цены", sort: "price", order: "desc" as SortOrder },
+  { label: "По умолчанию", sortBy: null, order: null },
+  { label: "По возрастанию цены", sortBy: "price", order: "asc" as SortOrder },
+  { label: "По убыванию цены", sortBy: "price", order: "desc" as SortOrder },
 ]
 
 export function SortSelector() {
@@ -16,7 +16,7 @@ export function SortSelector() {
   const [, setSearchParams] = useSearchParams()
 
   const handleChange = (option: typeof options[number]) => {
-    dispatch(setSort({ sort: option.sort, order: option.order }))
+    dispatch(setSort({ sortBy: option.sortBy, order: option.order }))
 
     setSearchParams(prev => {
       const next = new URLSearchParams(prev)
@@ -31,7 +31,7 @@ export function SortSelector() {
         <button
           key={option.label}
           className={`px-3 py-1 rounded border ${
-            sortState.sort === option.sort && sortState.order === option.order
+            sortState.sortBy === option.sortBy && sortState.order === option.order
               ? "bg-gray-300"
               : "bg-white"
           }`}

@@ -44,17 +44,17 @@ export const catalogApi = createApi({
         page: number
         limit: number
         filters?: FilterItem[]
-        sort?: string
+        sortBy?: string
         order?: "asc" | "desc"
       }
     >({
-      query: ({ categoryId, page, limit, filters, sort, order }) => ({
+      query: ({ categoryId, page, limit, filters, sortBy, order }) => ({
         url: `/products/category/${categoryId}`,
         params: {
           page,
           limit,
           filter: filters ? JSON.stringify(filters) : undefined,
-          sort,
+          sortBy,
           order,
         },
       }),
