@@ -1,4 +1,5 @@
 export const GENDER_ATTRIBUTE_ID = 6
+export const COLOR_ATTRIBUTE_ID = 2
 
 export const GENDER_VALUES = {
   male: 24,
