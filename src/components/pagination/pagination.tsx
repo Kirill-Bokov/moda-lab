@@ -17,9 +17,6 @@ export function Pagination({ totalPages }: PaginationProps) {
   const currentPage =
     Number.isFinite(raw) && raw >= 1 ? raw : 1
 
-  if (totalPages <= 1) {
-    return null
-  }
 
   const protectPage = (page: number) => {
     if (page < 1) return 1
@@ -46,6 +43,10 @@ export function Pagination({ totalPages }: PaginationProps) {
       }
     })
   }, [totalPages, currentPage])
+  
+  if (totalPages <= 1) {
+    return null
+  }
 
   return (
     <div className="flex justify-center gap-2 mt-6">
