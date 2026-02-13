@@ -6,7 +6,7 @@ import {
   loadFiltersFromStorage,
   loadGenderAsFilter,
 } from "./features/filtersPersistance/filtersPersistance"
-
+import authReducer from "./slices/authSlice"
 function isActionWithType(action: unknown): action is { type: string; payload?: unknown } {
   return (
     typeof action === "object" &&
@@ -43,6 +43,7 @@ export const store = configureStore({
   reducer: {
     filters: filtersReducer,
     [catalogApi.reducerPath]: catalogApi.reducer,
+    auth: authReducer
   },
   preloadedState: {
     filters:

@@ -4,12 +4,35 @@ import { productByIdMock } from "./data/productById.mock"
 import { productByCategoryMock } from "./data/productByCategory.mock"
 import { categoryAttributesMock } from "./data/attributes.mock"
 
-export const handlers = [
-  http.get("*/categories", ({ request }) => {
-    const url = new URL(request.url)
-    const gender = url.searchParams.get("gender")
+let shouldReturn401 = true
 
-    console.log("MSW getCategories", { gender })
+const requireAuth = (request: Request) => {
+  const authHeader = request.headers.get("authorization")
+  return authHeader === "Bearer mock_access_token"
+}
+
+export const handlers = [
+  http.get("*/auth/refresh", () => {
+    return HttpResponse.json({
+      accessToken: "mock_access_token",
+    })
+  }),
+
+  http.get("*/categories", ({ request }) => {
+    if (shouldReturn401) {
+      shouldReturn401 = false
+      return HttpResponse.json(
+        { message: "Unauthorized" },
+        { status: 401 }
+      )
+    }
+
+    if (!requireAuth(request)) {
+      return HttpResponse.json(
+        { message: "Unauthorized" },
+        { status: 401 }
+      )
+    }
 
     const filteredCategories = categoriesMock.map(cat => ({
       ...cat,
@@ -19,31 +42,44 @@ export const handlers = [
     return HttpResponse.json(filteredCategories)
   }),
 
-  // Получение атрибутов категории
-  http.get("*/categories/attributes/:categoryId", ({ params }) => {
-    const { categoryId } = params
-    console.log("MSW getCategoryAttributes", { categoryId })
+  http.get("*/categories/attributes/:categoryId", ({ request }) => {
+    if (!requireAuth(request)) {
+      return HttpResponse.json(
+        { message: "Unauthorized" },
+        { status: 401 }
+      )
+    }
+
     return HttpResponse.json(categoryAttributesMock)
   }),
 
-  // Получение продуктов по категории
   http.get("*/products/category/:categoryId", ({ params, request }) => {
+    if (!requireAuth(request)) {
+      return HttpResponse.json(
+        { message: "Unauthorized" },
+        { status: 401 }
+      )
+    }
+
     const categoryId = Number(params.categoryId)
-    const url = new URL(request.url)
-    const filter = url.searchParams.get("filter")
-    console.log("MSW getProductsByCategory", { categoryId, filter })
+
     if (categoryId === 4) {
       const allShirts = Object.values(productByCategoryMock).flat()
       return HttpResponse.json(allShirts)
     }
+
     const data = productByCategoryMock[categoryId]
     return HttpResponse.json(data)
   }),
 
-  // Получение продукта по variantId
-  http.get("*/products/:variantId", ({ params }) => {
-    const { variantId } = params
-    console.log("MSW getProductById", { variantId })
+  http.get("*/products/:variantId", ({ request }) => {
+    if (!requireAuth(request)) {
+      return HttpResponse.json(
+        { message: "Unauthorized" },
+        { status: 401 }
+      )
+    }
+
     return HttpResponse.json(productByIdMock)
   }),
 ]
