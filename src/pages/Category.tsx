@@ -7,8 +7,10 @@ import {
 import { selectAppliedFiltersQuery } from "../app/selectors/filtersSelectors"
 import type { RootState } from "../app/store"
 import { DataLoader } from "../components/dataLoader/DataLoader"
-import { CategoryAttributes } from "../components/categoryAttributes/CategoryAttributes"
+import { CategoryAttributes } from "../components/categoryAttributes/categoryAttributes"
 import { ProductGrid } from "../components/productGrid/productGrid"
+import { SortSelector } from "../components/sortSelect/SortSelector"
+import { Pagination } from "../components/pagination/pagination"
 import { skipToken } from "@reduxjs/toolkit/query/react"
 
 export default function Category() {
@@ -16,9 +18,12 @@ export default function Category() {
   const idToFetch = subcategoryId ?? categoryId
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
-  const queryText = searchParams.get("q")
 
-  const appliedFiltersQuery = useSelector((s: RootState) => selectAppliedFiltersQuery(s))
+  const appliedFilters = useSelector((s: RootState) => selectAppliedFiltersQuery(s))
+  const sortState = useSelector((s: RootState) => s.sort)
+
+  const page = Number(searchParams.get("page") ?? 1)
+  const limit = Number(searchParams.get("limit") ?? 20)
 
   const {
     data: attributes,
@@ -27,11 +32,18 @@ export default function Category() {
   } = useGetCategoryAttributesQuery(idToFetch ? Number(idToFetch) : skipToken)
 
   const queryArgs = idToFetch
-    ? { categoryId: Number(idToFetch), filters: appliedFiltersQuery }
+    ? {
+        categoryId: Number(idToFetch),
+        page,
+        limit,
+        filters: appliedFilters,
+        sortBy: sortState.sortBy ?? undefined,
+        order: sortState.order ?? undefined,
+      }
     : skipToken
 
   const {
-    data: products,
+    data: productsResponse,
     isLoading: productsLoading,
     error: productsError,
   } = useGetProductsByCategoryQuery(queryArgs)
@@ -40,15 +52,8 @@ export default function Category() {
     navigate(`/product/${variantId}`)
   }
 
-  const showSearchQuery = queryText && queryText.length >= 2
-
   return (
     <div className="container mx-auto px-4 py-6 space-y-6">
-      {showSearchQuery && (
-        <p className="text-sm text-gray-500">
-          Результаты по запросу: <span className="font-medium">{queryText}</span>
-        </p>
-      )}
       <DataLoader
         isLoading={attributesLoading}
         error={attributesError}
@@ -57,14 +62,24 @@ export default function Category() {
       >
         {attributes && <CategoryAttributes attributes={attributes} />}
       </DataLoader>
+
+      {idToFetch && <SortSelector />}
+
       <DataLoader
         isLoading={productsLoading}
         error={productsError}
         loadingText="Загрузка товаров..."
         errorText="Ошибка при загрузке товаров"
       >
-        {products && (
-          <ProductGrid products={products} onVariantClick={handleVariantClick} />
+        {productsResponse && (
+          <>
+            <ProductGrid
+              items={productsResponse.items}
+              onVariantClick={handleVariantClick}
+            />
+
+            <Pagination totalPages={productsResponse.meta.totalPages} />
+          </>
         )}
       </DataLoader>
     </div>

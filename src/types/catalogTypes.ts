@@ -8,19 +8,19 @@ export type GenderString = "male" | "female" | "unisex"
 export type Product = {
   product_id: number
   product_name: string
-  product_description: string
+  product_description?: string
   product_categoryId: number
   variant_id: number
-  variant_images?: string
+  variant_images?: string[]
   variant_price: string
   variant_sku: string
-  variant_stock: string
+  variant_stock?: string
   sizes?: string
 }
 
 export type FilterItem = {
-  attributeId: string
-  valueId: string
+  attributeId: number
+  valueId: number
 }
 
 export interface AttributeApi {
@@ -33,3 +33,21 @@ export interface AttributeValue {
   id: number
   value: string
 }
+
+export type SortOption = {
+  label: string
+  sortBy: string
+  order: "asc" | "desc"
+}
+
+export type PaginatedResponse<T> = {
+  items: T[]
+  meta: {
+    total: number
+    page: number
+    limit: number
+    totalPages: number
+  }
+}
+
+export type ProductsByCategoryResponse = PaginatedResponse<Product>
