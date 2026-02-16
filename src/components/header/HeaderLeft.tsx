@@ -1,5 +1,5 @@
 import { CatalogButton } from "./catalogButton/CatalogButton";
-import GenderToggle from "../genderToggle/GenderToggle";
+import GenderToggle from "./genderToggle/GenderToggle";
 import { Logo } from "../logo/Logo";
 
 export default function HeaderLeft() {

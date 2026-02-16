@@ -6,6 +6,8 @@ import {
   loadFiltersFromStorage,
   loadGenderAsFilter,
 } from "./features/filtersPersistance/filtersPersistance"
+import sortReducer from "./slices/sortSlice"
+import { filtersListener } from "./filtersListener"
 import authReducer from "./slices/authSlice"
 function isActionWithType(action: unknown): action is { type: string; payload?: unknown } {
   return (
@@ -42,6 +44,7 @@ const debugMiddleware: Middleware = store => next => action => {
 export const store = configureStore({
   reducer: {
     filters: filtersReducer,
+    sort: sortReducer,
     [catalogApi.reducerPath]: catalogApi.reducer,
     auth: authReducer
   },
@@ -52,6 +55,7 @@ export const store = configureStore({
   },
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware()
+      .concat(filtersListener.middleware)
       .concat(debugMiddleware)
       .concat(catalogApi.middleware),
 })

@@ -1,27 +1,29 @@
-import { useParams, useNavigate } from "react-router-dom"
+import { useParams, useNavigate, useSearchParams } from "react-router-dom"
+import { useSelector } from "react-redux"
 import {
   useGetCategoryAttributesQuery,
   useGetProductsByCategoryQuery,
 } from "../app/api/catalogApi"
-import { useSelector } from "react-redux"
+import { selectAppliedFiltersQuery } from "../app/selectors/filtersSelectors"
 import type { RootState } from "../app/store"
 import { DataLoader } from "../components/dataLoader/DataLoader"
-import { CategoryAttributes } from "../components/categoryAttributes/CategoryAttributes"
+import { CategoryAttributes } from "../components/categoryAttributes/categoryAttributes"
 import { ProductGrid } from "../components/productGrid/productGrid"
+import { SortSelector } from "../components/sortSelect/SortSelector"
+import { Pagination } from "../components/pagination/pagination"
 import { skipToken } from "@reduxjs/toolkit/query/react"
-import { selectAppliedFiltersQuery } from "../app/selectors/filtersSelectors"
 
 export default function Category() {
-  const { categoryId, subcategoryId } = useParams<{
-    categoryId?: string
-    subcategoryId?: string
-  }>()
+  const { categoryId, subcategoryId } = useParams<{ categoryId?: string; subcategoryId?: string }>()
   const idToFetch = subcategoryId ?? categoryId
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
 
-  const appliedFiltersQuery = useSelector((s: RootState) =>
-    selectAppliedFiltersQuery(s)
-  )
+  const appliedFilters = useSelector((s: RootState) => selectAppliedFiltersQuery(s))
+  const sortState = useSelector((s: RootState) => s.sort)
+
+  const page = Number(searchParams.get("page") ?? 1)
+  const limit = Number(searchParams.get("limit") ?? 20)
 
   const {
     data: attributes,
@@ -30,40 +32,38 @@ export default function Category() {
   } = useGetCategoryAttributesQuery(idToFetch ? Number(idToFetch) : skipToken)
 
   const queryArgs = idToFetch
-  ? {
-      categoryId: Number(idToFetch),
-      filters: appliedFiltersQuery,
-    }
-  : skipToken
-
+    ? {
+        categoryId: Number(idToFetch),
+        page,
+        limit,
+        filters: appliedFilters,
+        sortBy: sortState.sortBy ?? undefined,
+        order: sortState.order ?? undefined,
+      }
+    : skipToken
 
   const {
-    data: products,
+    data: productsResponse,
     isLoading: productsLoading,
     error: productsError,
   } = useGetProductsByCategoryQuery(queryArgs)
 
   const handleVariantClick = (variantId: number) => {
-  navigate(`/product/${variantId}`);
-};
-console.log("Категория:", idToFetch)
-console.log("Применённые фильтры:", appliedFiltersQuery)
-console.log("Продукты из запроса:", products)
+    navigate(`/product/${variantId}`)
+  }
 
   return (
-    <div className="container mx-auto px-4 py-6">
+    <div className="container mx-auto px-4 py-6 space-y-6">
       <DataLoader
         isLoading={attributesLoading}
         error={attributesError}
         loadingText="Загрузка атрибутов..."
         errorText="Ошибка при загрузке атрибутов"
       >
-        {attributes && (
-          <CategoryAttributes
-            attributes={attributes}
-          />
-        )}
+        {attributes && <CategoryAttributes attributes={attributes} />}
       </DataLoader>
+
+      {idToFetch && <SortSelector />}
 
       <DataLoader
         isLoading={productsLoading}
@@ -71,8 +71,15 @@ console.log("Продукты из запроса:", products)
         loadingText="Загрузка товаров..."
         errorText="Ошибка при загрузке товаров"
       >
-        {products && (
-          <ProductGrid products={products} onVariantClick={handleVariantClick} />
+        {productsResponse && (
+          <>
+            <ProductGrid
+              items={productsResponse.items}
+              onVariantClick={handleVariantClick}
+            />
+
+            <Pagination totalPages={productsResponse.meta.totalPages} />
+          </>
         )}
       </DataLoader>
     </div>

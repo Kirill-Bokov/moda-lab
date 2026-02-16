@@ -1,7 +1,8 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react"
-import type { Category, Product, AttributeApi } from "../../types/catalogTypes"
+import type { Category, ProductsByCategoryResponse, AttributeApi } from "../../types/catalogTypes"
 import type { ProductCard } from "../../types/productTypes"
-import type { GenderString } from "../../types/catalogTypes"
+import type { GenderString, FilterItem } from "../../types/catalogTypes"
+import type { SearchResponse } from "../../types/searchTypes"
 import type { RootState } from "../../app/store"
 import { setCredentials, logout } from "../slices/authSlice"
 
@@ -44,15 +45,55 @@ export const catalogApi = createApi({
     }),
     getCategoryAttributes: builder.query<AttributeApi[], number>({
       query: categoryId => `categories/attributes/${categoryId}`,
+      onQueryStarted: async (categoryId, { queryFulfilled }) => {
+        console.log("getCategoryAttributes categoryId", categoryId)
+        try {
+          const { data } = await queryFulfilled
+          console.log("getCategoryAttributes response", data)
+        } catch (e) {
+          console.error("getCategoryAttributes error", e)
+        }
+      },
     }),
-    getProductsByCategory: builder.query<Product[], { categoryId: number; filters?: string }>({
-      query: ({ categoryId, filters }) => ({
+
+    getProductsByCategory: builder.query<
+      ProductsByCategoryResponse,
+      {
+        categoryId: number
+        page: number
+        limit: number
+        filters?: FilterItem[]
+        sortBy?: string
+        order?: "asc" | "desc"
+      }
+    >({
+      query: ({ categoryId, page, limit, filters, sortBy, order }) => ({
         url: `/products/category/${categoryId}`,
-        params: filters ? { filter: filters } : undefined,
+        params: {
+          page,
+          limit,
+          filter: filters ? JSON.stringify(filters) : undefined,
+          sortBy,
+          order,
+        },
       }),
     }),
+
+
+
     getProductById: builder.query<ProductCard, number>({
       query: variantId => `products/${variantId}`,
+    }),
+
+    searchProducts: builder.query<SearchResponse, string>({
+      query: q => ({
+        url: "/search",
+        params: { q },
+      }),
+    }),
+
+    getAttributes: builder.query<AttributeApi[], void>({
+      query: () => "/products/attributes",
     }),
   }),
 })
@@ -62,4 +103,6 @@ export const {
   useGetCategoryAttributesQuery,
   useGetProductsByCategoryQuery,
   useGetProductByIdQuery,
+  useSearchProductsQuery,
+  useGetAttributesQuery
 } = catalogApi
