@@ -10,17 +10,25 @@ const baseQuery = fetchBaseQuery({
   baseUrl: import.meta.env.VITE_API_URL,
   prepareHeaders: (headers, { getState }) => {
     const token = (getState() as RootState).auth.accessToken
-    if (token) headers.set("Authorization", `Bearer ${token}`) 
+    if (token) headers.set("Authorization", `Bearer ${token}`)
     return headers
   },
   credentials: "include",
 })
 
+let refreshingPromise: Promise<{ data?: any }> | null = null
+
 const baseQueryWithReauth = async (args: any, api: any, extraOptions: any) => {
   let result = await baseQuery(args, api, extraOptions)
 
   if (result.error?.status === 401) {
-    const refreshResult = await baseQuery("/auth/refresh", api, extraOptions)
+    if (!refreshingPromise) {
+      refreshingPromise = baseQuery("/auth/refresh", api, extraOptions) as Promise<{ data?: any }>
+    }
+
+    const refreshResult = await refreshingPromise
+    refreshingPromise = null
+
     if (
       refreshResult.data &&
       typeof refreshResult.data === "object" &&
@@ -33,6 +41,7 @@ const baseQueryWithReauth = async (args: any, api: any, extraOptions: any) => {
       api.dispatch(logout())
     }
   }
+
   return result
 }
 
@@ -40,69 +49,89 @@ export const catalogApi = createApi({
   reducerPath: "catalogApi",
   baseQuery: baseQueryWithReauth,
   endpoints: builder => ({
+    refreshToken: builder.query<{ accessToken: string }, void>({
+      query: () => "/auth/refresh",
+    }),
+
     getCategories: builder.query<Category[], { gender: GenderString }>({
       query: ({ gender }) => `categories?gender=${gender}`,
     }),
+
     getCategoryAttributes: builder.query<AttributeApi[], number>({
       query: categoryId => `categories/attributes/${categoryId}`,
-      onQueryStarted: async (categoryId, { queryFulfilled }) => {
-        console.log("getCategoryAttributes categoryId", categoryId)
-        try {
-          const { data } = await queryFulfilled
-          console.log("getCategoryAttributes response", data)
-        } catch (e) {
-          console.error("getCategoryAttributes error", e)
-        }
-      },
     }),
 
     getProductsByCategory: builder.query<
       ProductsByCategoryResponse,
-      {
-        categoryId: number
-        page: number
-        limit: number
-        filters?: FilterItem[]
-        sortBy?: string
-        order?: "asc" | "desc"
-      }
+      { categoryId: number; page: number; limit: number; filters?: FilterItem[]; sortBy?: string; order?: "asc" | "desc" }
     >({
       query: ({ categoryId, page, limit, filters, sortBy, order }) => ({
         url: `/products/category/${categoryId}`,
-        params: {
-          page,
-          limit,
-          filter: filters ? JSON.stringify(filters) : undefined,
-          sortBy,
-          order,
-        },
+        params: { page, limit, filter: filters ? JSON.stringify(filters) : undefined, sortBy, order },
       }),
     }),
-
-
 
     getProductById: builder.query<ProductCard, number>({
       query: variantId => `products/${variantId}`,
     }),
 
     searchProducts: builder.query<SearchResponse, string>({
-      query: q => ({
-        url: "/search",
-        params: { q },
-      }),
+      query: q => ({ url: "/search", params: { q } }),
     }),
 
-    getAttributes: builder.query<AttributeApi[], void>({
-      query: () => "/products/attributes",
+    login: builder.mutation<{ accessToken: string }, { email: string; password: string }>({
+      query: credentials => ({
+        url: "/auth/login",
+        method: "POST",
+        body: credentials,
+      }),
+      async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled
+          dispatch(setCredentials({ accessToken: data.accessToken }))
+        } catch {}
+      },
+    }),
+
+    register: builder.mutation<{ accessToken: string }, { email: string; password: string; name: string }>({
+      query: userData => ({
+        url: "/auth/register",
+        method: "POST",
+        body: userData,
+      }),
+      async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled
+          dispatch(setCredentials({ accessToken: data.accessToken }))
+        } catch {}
+      },
+    }),
+
+    logout: builder.mutation<void, void>({
+      query: () => ({
+        url: "/auth/logout",
+        method: "POST",
+      }),
+      async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
+        try {
+          await queryFulfilled
+        } finally {
+          dispatch(logout())
+        }
+      },
     }),
   }),
 })
 
 export const {
+  useRefreshTokenQuery,
   useGetCategoriesQuery,
   useGetCategoryAttributesQuery,
   useGetProductsByCategoryQuery,
   useGetProductByIdQuery,
   useSearchProductsQuery,
-  useGetAttributesQuery
+  useLoginMutation,
+  useRegisterMutation,
+  useLogoutMutation,
+  useLazyRefreshTokenQuery,
 } = catalogApi
