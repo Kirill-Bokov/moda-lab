@@ -132,7 +132,9 @@ export const catalogApi = createApi({
         } catch { }
       },
     }),
-
+    getCities: builder.query<string[], void>({
+      query: () => "/cities",
+    }),
   }),
 })
 
@@ -147,5 +149,7 @@ export const {
   useRegisterMutation,
   useLogoutMutation,
   useLazyRefreshTokenQuery,
-  useGetBootstrapQuery
+  useGetBootstrapQuery,
+  useGetCitiesQuery,
+  useLazyGetCitiesQuery
 } = catalogApi
