@@ -1,16 +1,14 @@
-import { useEffect } from "react"
 import Header from "./components/header/Header"
 import AppRouter from "./AppRouter"
-import { useLazyRefreshTokenQuery } from "./app/api/catalogApi"
+
+import { useGetBootstrapQuery } from "./app/api/catalogApi"
 
 export default function App() {
-  const [triggerRefresh] = useLazyRefreshTokenQuery()
+  const { isLoading } = useGetBootstrapQuery()
 
-  useEffect(() => {
-    triggerRefresh().unwrap().catch(() => {
-      console.log("Silent refresh failed")
-    })
-  }, [triggerRefresh])
+  if (isLoading) {
+    return <div>Loading...</div>
+  }
 
   return (
     <div className="min-h-screen flex flex-col">

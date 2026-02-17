@@ -5,6 +5,7 @@ import type { GenderString, FilterItem } from "../../types/catalogTypes"
 import type { SearchResponse } from "../../types/searchTypes"
 import type { RootState } from "../../app/store"
 import { setCredentials, logout } from "../slices/authSlice"
+import type { BootstrapResponse } from "../../types/initTypes"
 
 const baseQuery = fetchBaseQuery({
   baseUrl: import.meta.env.VITE_API_URL,
@@ -89,7 +90,7 @@ export const catalogApi = createApi({
         try {
           const { data } = await queryFulfilled
           dispatch(setCredentials({ accessToken: data.accessToken }))
-        } catch {}
+        } catch { }
       },
     }),
 
@@ -103,7 +104,7 @@ export const catalogApi = createApi({
         try {
           const { data } = await queryFulfilled
           dispatch(setCredentials({ accessToken: data.accessToken }))
-        } catch {}
+        } catch { }
       },
     }),
 
@@ -120,6 +121,18 @@ export const catalogApi = createApi({
         }
       },
     }),
+    getBootstrap: builder.query<BootstrapResponse, void>({
+      query: () => "/bootstrap",
+      async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled
+          if (data.accessToken) {
+            dispatch(setCredentials({ accessToken: data.accessToken }))
+          }
+        } catch { }
+      },
+    }),
+
   }),
 })
 
@@ -134,4 +147,5 @@ export const {
   useRegisterMutation,
   useLogoutMutation,
   useLazyRefreshTokenQuery,
+  useGetBootstrapQuery
 } = catalogApi
