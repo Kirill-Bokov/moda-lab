@@ -6,6 +6,7 @@ import type { SearchResponse } from "../../types/searchTypes"
 import type { RootState } from "../../app/store"
 import { setCredentials, logout } from "../slices/authSlice"
 import type { BootstrapResponse } from "../../types/initTypes"
+import type { BaseQueryFn, FetchArgs, FetchBaseQueryError } from "@reduxjs/toolkit/query"
 
 const baseQuery = fetchBaseQuery({
   baseUrl: import.meta.env.VITE_API_URL,
@@ -17,26 +18,41 @@ const baseQuery = fetchBaseQuery({
   credentials: "include",
 })
 
-let refreshingPromise: Promise<{ data?: any }> | null = null
+let refreshingPromise: Promise<any> | null = null
 
-const baseQueryWithReauth = async (args: any, api: any, extraOptions: any) => {
+const baseQueryWithReauth: BaseQueryFn<
+  string | FetchArgs,
+  unknown,
+  FetchBaseQueryError
+> = async (args, api, extraOptions) => {
   let result = await baseQuery(args, api, extraOptions)
 
   if (result.error?.status === 401) {
     if (!refreshingPromise) {
-      refreshingPromise = baseQuery("/auth/refresh", api, extraOptions) as Promise<{ data?: any }>
+      refreshingPromise = Promise
+        .resolve(
+          baseQuery(
+            { url: "/auth/refresh", method: "POST" },
+            api,
+            extraOptions
+          )
+        )
+        .finally(() => {
+          refreshingPromise = null
+        })
     }
 
     const refreshResult = await refreshingPromise
-    refreshingPromise = null
 
     if (
-      refreshResult.data &&
+      refreshResult?.data &&
       typeof refreshResult.data === "object" &&
       "accessToken" in refreshResult.data
     ) {
       const { accessToken } = refreshResult.data as { accessToken: string }
+
       api.dispatch(setCredentials({ accessToken }))
+
       result = await baseQuery(args, api, extraOptions)
     } else {
       api.dispatch(logout())

@@ -15,7 +15,7 @@ const requireAuth = (request: Request) => {
 
 export const handlers = [
   // Refresh токена
-  http.get("*/auth/refresh", () => {
+  http.post("*/auth/refresh", () => {
     return HttpResponse.json({
       accessToken: "mock_access_token",
     })
@@ -125,7 +125,23 @@ http.get("*/cities", ({ request }) => {
   }
 
   return HttpResponse.json(citiesMock)
+}),
+
+// Bootstrap авторизации
+http.get("*/bootstrap", () => {
+  const isAuthenticated = true
+
+  return HttpResponse.json({
+    accessToken: isAuthenticated ? "mock_access_token" : null,
+    isAuthenticated,
+    user: isAuthenticated
+      ? {
+          id: 1,
+          email: "mock@example.com",
+          name: "Mock User",
+        }
+      : null,
+    geolocation: "Moscow",
+  })
 })
-
-
 ]

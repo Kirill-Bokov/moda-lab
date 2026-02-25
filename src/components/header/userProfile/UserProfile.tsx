@@ -9,7 +9,7 @@ export default function UserProfile() {
   const { data } = useGetBootstrapQuery()
   const [logout] = useLogoutMutation()
 
-  const isAuthenticated = data?.isAuthenticated ?? true
+  const isAuthenticated = data?.isAuthenticated ?? false
   const userName = data?.user?.name ?? "Неизвестный"
   const userEmail = data?.user?.email ?? "noname@mail.com"
 
