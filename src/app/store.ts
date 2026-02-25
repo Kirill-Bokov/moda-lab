@@ -8,7 +8,7 @@ import {
 } from "./features/filtersPersistance/filtersPersistance"
 import sortReducer from "./slices/sortSlice"
 import { filtersListener } from "./filtersListener"
-
+import authReducer from "./slices/authSlice"
 function isActionWithType(action: unknown): action is { type: string; payload?: unknown } {
   return (
     typeof action === "object" &&
@@ -46,6 +46,7 @@ export const store = configureStore({
     filters: filtersReducer,
     sort: sortReducer,
     [catalogApi.reducerPath]: catalogApi.reducer,
+    auth: authReducer
   },
   preloadedState: {
     filters:

@@ -4,12 +4,39 @@ import { productByIdMock } from "./data/productById.mock"
 import { categoryAttributesMock } from "./data/attributes.mock"
 import { searchProductsMock } from "./data/searchProducts.mock"
 import { generateProducts } from "./data/productByCategory.mock"
-export const handlers = [
-  http.get("*/categories", ({ request }) => {
-    const url = new URL(request.url)
-    const gender = url.searchParams.get("gender")
+import { citiesMock } from "./data/cities.mock"
 
-    console.log("MSW getCategories", { gender })
+let shouldReturn401 = true
+
+const requireAuth = (request: Request) => {
+  const authHeader = request.headers.get("authorization")
+  return authHeader === "Bearer mock_access_token"
+}
+
+export const handlers = [
+  // Refresh токена
+  http.post("*/auth/refresh", () => {
+    return HttpResponse.json({
+      accessToken: "mock_access_token",
+    })
+  }),
+
+  // Категории
+  http.get("*/categories", ({ request }) => {
+    if (shouldReturn401) {
+      shouldReturn401 = false
+      return HttpResponse.json(
+        { message: "Unauthorized" },
+        { status: 401 }
+      )
+    }
+
+    if (!requireAuth(request)) {
+      return HttpResponse.json(
+        { message: "Unauthorized" },
+        { status: 401 }
+      )
+    }
 
     const filteredCategories = categoriesMock.map(cat => ({
       ...cat,
@@ -19,49 +46,64 @@ export const handlers = [
     return HttpResponse.json(filteredCategories)
   }),
 
-  // Получение атрибутов категории
-  http.get("*/categories/attributes/:categoryId", ({ params }) => {
-    const { categoryId } = params
-    console.log("MSW getCategoryAttributes", { categoryId })
+  // Атрибуты категории
+  http.get("*/categories/attributes/:categoryId", ({ request }) => {
+    if (!requireAuth(request)) {
+      return HttpResponse.json(
+        { message: "Unauthorized" },
+        { status: 401 }
+      )
+    }
+
     return HttpResponse.json(categoryAttributesMock)
   }),
 
-  // Получение продуктов по категории
+  // Продукты по категории с пагинацией
   http.get("*/products/category/:categoryId", ({ params, request }) => {
-  const categoryId = Number(params.categoryId)
-  const url = new URL(request.url)
-  const page = Number(url.searchParams.get("page") ?? 1)
-  const limit = Number(url.searchParams.get("limit") ?? 20)
+    if (!requireAuth(request)) {
+      return HttpResponse.json(
+        { message: "Unauthorized" },
+        { status: 401 }
+      )
+    }
 
-  const allItems = generateProducts(categoryId)
-  const pagedItems = allItems.slice((page - 1) * limit, page * limit)
+    const categoryId = Number(params.categoryId)
+    const url = new URL(request.url)
 
-  return HttpResponse.json({
-    items: pagedItems,
-    meta: {
-      total: allItems.length,
-      page,
-      limit,
-      totalPages: Math.ceil(allItems.length / limit),
-    },
-  })
-}),
+    const page = Number(url.searchParams.get("page") ?? 1)
+    const limit = Number(url.searchParams.get("limit") ?? 20)
+
+    const allItems = generateProducts(categoryId)
+    const pagedItems = allItems.slice((page - 1) * limit, page * limit)
+
+    return HttpResponse.json({
+      items: pagedItems,
+      meta: {
+        total: allItems.length,
+        page,
+        limit,
+        totalPages: Math.ceil(allItems.length / limit),
+      },
+    })
+  }),
 
   // Получение продукта по variantId
-  http.get("*/products/:variantId", ({ params }) => {
-    const { variantId } = params
-    console.log("MSW getProductById", { variantId })
+  http.get("*/products/:variantId", ({ request }) => {
+    if (!requireAuth(request)) {
+      return HttpResponse.json(
+        { message: "Unauthorized" },
+        { status: 401 }
+      )
+    }
+
     return HttpResponse.json(productByIdMock)
   }),
 
-  // Поиск продуктов
+  // Поиск
   http.get("*/search", ({ request }) => {
     const url = new URL(request.url)
     const query = url.searchParams.get("q") || ""
 
-    console.log("MSW searchProducts", { query })
-
-    // Ищем точное совпадение или возвращаем пустой результат
     const result = searchProductsMock[query] || {
       query,
       products: [],
@@ -72,4 +114,34 @@ export const handlers = [
 
     return HttpResponse.json(result)
   }),
+
+// Получение списка городов
+http.get("*/cities", ({ request }) => {
+  if (!requireAuth(request)) {
+    return HttpResponse.json(
+      { message: "Unauthorized" },
+      { status: 401 }
+    )
+  }
+
+  return HttpResponse.json(citiesMock)
+}),
+
+// Bootstrap авторизации
+http.get("*/bootstrap", () => {
+  const isAuthenticated = true
+
+  return HttpResponse.json({
+    accessToken: isAuthenticated ? "mock_access_token" : null,
+    isAuthenticated,
+    user: isAuthenticated
+      ? {
+          id: 1,
+          email: "mock@example.com",
+          name: "Mock User",
+        }
+      : null,
+    geolocation: "Moscow",
+  })
+})
 ]

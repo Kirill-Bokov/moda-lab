@@ -3,96 +3,169 @@ import type { Category, ProductsByCategoryResponse, AttributeApi } from "../../t
 import type { ProductCard } from "../../types/productTypes"
 import type { GenderString, FilterItem } from "../../types/catalogTypes"
 import type { SearchResponse } from "../../types/searchTypes"
+import type { RootState } from "../../app/store"
+import { setCredentials, logout } from "../slices/authSlice"
+import type { BootstrapResponse } from "../../types/initTypes"
+import type { BaseQueryFn, FetchArgs, FetchBaseQueryError } from "@reduxjs/toolkit/query"
+
+const baseQuery = fetchBaseQuery({
+  baseUrl: import.meta.env.VITE_API_URL,
+  prepareHeaders: (headers, { getState }) => {
+    const token = (getState() as RootState).auth.accessToken
+    if (token) headers.set("Authorization", `Bearer ${token}`)
+    return headers
+  },
+  credentials: "include",
+})
+
+let refreshingPromise: Promise<any> | null = null
+
+const baseQueryWithReauth: BaseQueryFn<
+  string | FetchArgs,
+  unknown,
+  FetchBaseQueryError
+> = async (args, api, extraOptions) => {
+  let result = await baseQuery(args, api, extraOptions)
+
+  if (result.error?.status === 401) {
+    if (!refreshingPromise) {
+      refreshingPromise = Promise
+        .resolve(
+          baseQuery(
+            { url: "/auth/refresh", method: "POST" },
+            api,
+            extraOptions
+          )
+        )
+        .finally(() => {
+          refreshingPromise = null
+        })
+    }
+
+    const refreshResult = await refreshingPromise
+
+    if (
+      refreshResult?.data &&
+      typeof refreshResult.data === "object" &&
+      "accessToken" in refreshResult.data
+    ) {
+      const { accessToken } = refreshResult.data as { accessToken: string }
+
+      api.dispatch(setCredentials({ accessToken }))
+
+      result = await baseQuery(args, api, extraOptions)
+    } else {
+      api.dispatch(logout())
+    }
+  }
+
+  return result
+}
 
 export const catalogApi = createApi({
   reducerPath: "catalogApi",
-  baseQuery: fetchBaseQuery({
-    baseUrl: import.meta.env.VITE_API_URL,
-  }),
+  baseQuery: baseQueryWithReauth,
   endpoints: builder => ({
+    refreshToken: builder.query<{ accessToken: string }, void>({
+      query: () => "/auth/refresh",
+    }),
 
     getCategories: builder.query<Category[], { gender: GenderString }>({
       query: ({ gender }) => `categories?gender=${gender}`,
-      onQueryStarted: async (args, { queryFulfilled }) => {
-        console.log("getCategories args", args)
-        try {
-          const { data } = await queryFulfilled
-          console.log("getCategories response", data)
-        } catch (e) {
-          console.error("getCategories error", e)
-        }
-      },
     }),
 
     getCategoryAttributes: builder.query<AttributeApi[], number>({
       query: categoryId => `categories/attributes/${categoryId}`,
-      onQueryStarted: async (categoryId, { queryFulfilled }) => {
-        console.log("getCategoryAttributes categoryId", categoryId)
-        try {
-          const { data } = await queryFulfilled
-          console.log("getCategoryAttributes response", data)
-        } catch (e) {
-          console.error("getCategoryAttributes error", e)
-        }
-      },
     }),
 
     getProductsByCategory: builder.query<
       ProductsByCategoryResponse,
-      {
-        categoryId: number
-        page: number
-        limit: number
-        filters?: FilterItem[]
-        sortBy?: string
-        order?: "asc" | "desc"
-      }
+      { categoryId: number; page: number; limit: number; filters?: FilterItem[]; sortBy?: string; order?: "asc" | "desc" }
     >({
       query: ({ categoryId, page, limit, filters, sortBy, order }) => ({
         url: `/products/category/${categoryId}`,
-        params: {
-          page,
-          limit,
-          filter: filters ? JSON.stringify(filters) : undefined,
-          sortBy,
-          order,
-        },
+        params: { page, limit, filter: filters ? JSON.stringify(filters) : undefined, sortBy, order },
       }),
     }),
-
-
 
     getProductById: builder.query<ProductCard, number>({
       query: variantId => `products/${variantId}`,
-      onQueryStarted: async (variantId, { queryFulfilled }) => {
-        console.log("getProductById variantId", variantId)
-        try {
-          const { data } = await queryFulfilled
-          console.log("getProductById response", data)
-        } catch (e) {
-          console.error("getProductById error", e)
-        }
-      },
     }),
 
     searchProducts: builder.query<SearchResponse, string>({
-      query: q => ({
-        url: "/search",
-        params: { q },
-      }),
+      query: q => ({ url: "/search", params: { q } }),
     }),
 
-    getAttributes: builder.query<AttributeApi[], void>({
-      query: () => "/products/attributes",
+    login: builder.mutation<{ accessToken: string }, { email: string; password: string }>({
+      query: credentials => ({
+        url: "/auth/login",
+        method: "POST",
+        body: credentials,
+      }),
+      async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled
+          dispatch(setCredentials({ accessToken: data.accessToken }))
+        } catch { }
+      },
+    }),
+
+    register: builder.mutation<{ accessToken: string }, { email: string; password: string; name: string }>({
+      query: userData => ({
+        url: "/auth/register",
+        method: "POST",
+        body: userData,
+      }),
+      async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled
+          dispatch(setCredentials({ accessToken: data.accessToken }))
+        } catch { }
+      },
+    }),
+
+    logout: builder.mutation<void, void>({
+      query: () => ({
+        url: "/auth/logout",
+        method: "POST",
+      }),
+      async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
+        try {
+          await queryFulfilled
+        } finally {
+          dispatch(logout())
+        }
+      },
+    }),
+    getBootstrap: builder.query<BootstrapResponse, void>({
+      query: () => "/bootstrap",
+      async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled
+          if (data.accessToken) {
+            dispatch(setCredentials({ accessToken: data.accessToken }))
+          }
+        } catch { }
+      },
+    }),
+    getCities: builder.query<string[], void>({
+      query: () => "/cities",
     }),
   }),
 })
 
 export const {
+  useRefreshTokenQuery,
   useGetCategoriesQuery,
   useGetCategoryAttributesQuery,
   useGetProductsByCategoryQuery,
   useGetProductByIdQuery,
   useSearchProductsQuery,
-  useGetAttributesQuery
+  useLoginMutation,
+  useRegisterMutation,
+  useLogoutMutation,
+  useLazyRefreshTokenQuery,
+  useGetBootstrapQuery,
+  useGetCitiesQuery,
+  useLazyGetCitiesQuery
 } = catalogApi
