@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { useLoginMutation, useRegisterMutation } from "../app/api/catalogApi"
+import { useLoginMutation, useRegisterMutation } from "../app/api/authApi"
 
 export default function LoginPage() {
     const [isLogin, setIsLogin] = useState(true)

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import { MapPinIcon, XMarkIcon } from "@heroicons/react/24/outline"
-import { useGetBootstrapQuery, useLazyGetCitiesQuery } from "../../../app/api/catalogApi"
+import { useGetBootstrapQuery, useLazyGetCitiesQuery } from "../../../app/api/systemApi"
 
 export default function CitySelector() {
   const { data: bootstrap } = useGetBootstrapQuery()
