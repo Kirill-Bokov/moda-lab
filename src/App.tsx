@@ -1,7 +1,7 @@
 import Header from "./components/header/Header"
 import AppRouter from "./AppRouter"
 
-import { useGetBootstrapQuery } from "./app/api/catalogApi"
+import { useGetBootstrapQuery } from "./app/api/systemApi"
 
 export default function App() {
   const { isLoading } = useGetBootstrapQuery()

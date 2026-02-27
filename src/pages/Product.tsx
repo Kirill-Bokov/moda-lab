@@ -1,6 +1,6 @@
 import { useRef } from "react"
 import { useParams, useNavigate } from "react-router-dom"
-import { useGetProductByIdQuery } from "../app/api/catalogApi"
+import { useGetProductByIdQuery } from "../app/api/productApi"
 import type { ProductCard, ProductVariant } from "../types/productTypes"
 
 import { ProductImageGallery } from "../components/product/productImageGallery"

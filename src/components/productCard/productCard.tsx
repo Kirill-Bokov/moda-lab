@@ -37,4 +37,3 @@ export function ProductCard({ product, onClick }: ProductCardProps) {
     </div>
   );
 }
-

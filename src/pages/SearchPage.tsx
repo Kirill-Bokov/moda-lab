@@ -1,5 +1,5 @@
 import { useSearchParams, useNavigate } from "react-router-dom"
-import { useSearchProductsQuery } from "../app/api/catalogApi"
+import { useSearchProductsQuery } from "../app/api/searchApi"
 import { DataLoader } from "../components/dataLoader/DataLoader"
 import { ProductGrid } from "../components/productGrid/productGrid"
 

@@ -1,7 +1,8 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { UserIcon } from "@heroicons/react/24/outline"
-import { useGetBootstrapQuery, useLogoutMutation } from "../../../app/api/catalogApi"
+import { useGetBootstrapQuery } from "../../../app/api/systemApi"
+import { useLogoutMutation } from "../../../app/api/authApi"
 
 export default function UserProfile() {
   const navigate = useNavigate()

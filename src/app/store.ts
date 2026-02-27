@@ -1,52 +1,20 @@
 import { configureStore } from "@reduxjs/toolkit"
-import type { Middleware } from "@reduxjs/toolkit"
 import filtersReducer from "./slices/filtersSlice"
-import { catalogApi } from "./api/catalogApi"
+import sortReducer from "./slices/sortSlice"
+import authReducer from "./slices/authSlice"
+import { baseApi } from "./api/baseApi"
+import { filtersListener } from "./filtersListener"
 import {
   loadFiltersFromStorage,
   loadGenderAsFilter,
 } from "./features/filtersPersistance/filtersPersistance"
-import sortReducer from "./slices/sortSlice"
-import { filtersListener } from "./filtersListener"
-import authReducer from "./slices/authSlice"
-function isActionWithType(action: unknown): action is { type: string; payload?: unknown } {
-  return (
-    typeof action === "object" &&
-    action !== null &&
-    "type" in action &&
-    typeof (action as any).type === "string"
-  )
-}
-
-const debugMiddleware: Middleware = store => next => action => {
-  if (!isActionWithType(action)) {
-    return next(action)
-  }
-
-  const isApiAction = action.type.startsWith("catalogApi/")
-  const isFiltersAction = action.type.startsWith("filters/")
-
-  if (isApiAction || isFiltersAction) {
-    console.log("ACTION", action.type)
-    console.log("PAYLOAD", action.payload)
-    console.log("STATE BEFORE", store.getState())
-  }
-
-  const result = next(action)
-
-  if (isApiAction || isFiltersAction) {
-    console.log("STATE AFTER", store.getState())
-  }
-
-  return result
-}
 
 export const store = configureStore({
   reducer: {
     filters: filtersReducer,
     sort: sortReducer,
-    [catalogApi.reducerPath]: catalogApi.reducer,
-    auth: authReducer
+    auth: authReducer,
+    [baseApi.reducerPath]: baseApi.reducer,
   },
   preloadedState: {
     filters:
@@ -55,9 +23,8 @@ export const store = configureStore({
   },
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware()
+      .concat(baseApi.middleware)
       .concat(filtersListener.middleware)
-      .concat(debugMiddleware)
-      .concat(catalogApi.middleware),
 })
 
 export type RootState = ReturnType<typeof store.getState>
