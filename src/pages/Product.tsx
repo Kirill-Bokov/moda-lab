@@ -1,7 +1,7 @@
-import { useRef } from "react"
+import { useRef, useState, useEffect } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import { useGetProductByIdQuery } from "../app/api/productApi"
-import type { ProductCard, ProductVariant } from "../types/productTypes"
+import type { ProductCard } from "../types/productTypes"
 
 import { ProductImageGallery } from "../components/product/productImageGallery"
 import { ProductTitle } from "../components/product/productTitle"
@@ -9,6 +9,7 @@ import { ProductDescription } from "../components/product/productDescription"
 import { ProductColorSelector } from "../components/product/productColorSelector"
 import { ProductAddToCartButton } from "../components/product/productAddToCartButton"
 import { ProductShare } from "../components/product/productShare"
+import ProductSizes from "../components/product/productSizes"
 
 export default function ProductPage() {
   const { variantId } = useParams<{ variantId?: string }>()
@@ -19,17 +20,24 @@ export default function ProductPage() {
     useGetProductByIdQuery(variantIdNumber)
 
   const imageRefs = useRef<HTMLDivElement[]>([])
+  const [selectedSize, setSelectedSize] = useState<number | null>(null)
+
+  const product = data as ProductCard | undefined
+
+  const activeVariant =
+    product?.variants.find(v => v.id === variantIdNumber)
+    ?? product?.variants[0]
+
+  useEffect(() => {
+    if (activeVariant) {
+      setSelectedSize(null)
+    }
+  }, [activeVariant?.id])
 
   if (isLoading) return <p>Загрузка товара...</p>
   if (error) return <p>Ошибка при загрузке товара</p>
-  if (!data) return <p>Товар не найден</p>
-
-  const product: ProductCard = data
-
-  const activeVariant: ProductVariant =
-    product.variants.find(v => v.id === variantIdNumber)
-    ?? product.variants[0]
-
+  if (!product || !activeVariant) return <p>Товар не найден</p>
+    
   return (
     <div className="container mx-auto px-4 py-6">
       <div className="flex gap-8">
@@ -51,13 +59,23 @@ export default function ProductPage() {
             activeVariantId={activeVariant.id}
             onSelect={id => navigate(`/product/${id}`)}
           />
+
           <ProductDescription
             description={product.description}
             attributeValues={activeVariant.attributeValues}
           />
+
+          <ProductSizes
+            sizes={activeVariant.sizes}
+            selectedId={selectedSize}
+            onSelect={(id) => setSelectedSize(id)}
+          />
+
           <ProductAddToCartButton
             variantId={activeVariant.id}
+            selectedSizeId={selectedSize}
           />
+
           <ProductShare
             sku={activeVariant.sku}
           />
