@@ -7,9 +7,12 @@ import "./index.css"
 import { BrowserRouter } from "react-router-dom"
 
 async function prepareApp() {
-  if (import.meta.env.DEV) {
+  const isDev = import.meta.env.DEV
+  const isDemo = import.meta.env.VITE_DEMO === "true"
+
+  if (isDev || isDemo) {
     const { worker } = await import("./mocks/browser")
-    await worker.start()
+    await worker.start({ onUnhandledRequest: "bypass" })
   }
 }
 

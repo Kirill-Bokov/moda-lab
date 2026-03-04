@@ -4,12 +4,14 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite --port 5173",
-    "build": "tsc -b && vite build",
+    "dev": "vite --port 5173", 
+    "build": "tsc -b && vite build", 
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "build:demo": "vite build --mode demo", 
+    "preview:demo": "vite preview --port 4173 --mode demo"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
