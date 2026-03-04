@@ -5,6 +5,8 @@ import { categoryAttributesMock } from "./data/attributes.mock"
 import { searchProductsMock } from "./data/searchProducts.mock"
 import { generateProducts } from "./data/productByCategory.mock"
 import { citiesMock } from "./data/cities.mock"
+import { cartHandlers } from "./data/cart.mock"
+import { favoriteHandlers } from "./data/favorites.mock"
 
 let shouldReturn401 = true
 
@@ -115,33 +117,37 @@ export const handlers = [
     return HttpResponse.json(result)
   }),
 
-// Получение списка городов
-http.get("*/cities", ({ request }) => {
-  if (!requireAuth(request)) {
-    return HttpResponse.json(
-      { message: "Unauthorized" },
-      { status: 401 }
-    )
-  }
+  // Получение списка городов
+  http.get("*/cities", ({ request }) => {
+    if (!requireAuth(request)) {
+      return HttpResponse.json(
+        { message: "Unauthorized" },
+        { status: 401 }
+      )
+    }
 
-  return HttpResponse.json(citiesMock)
-}),
+    return HttpResponse.json(citiesMock)
+  }),
 
-// Bootstrap авторизации
-http.get("*/bootstrap", () => {
-  const isAuthenticated = true
+  // Bootstrap авторизации
+  http.get("*/bootstrap", () => {
+    const isAuthenticated = true
 
-  return HttpResponse.json({
-    accessToken: isAuthenticated ? "mock_access_token" : null,
-    isAuthenticated,
-    user: isAuthenticated
-      ? {
-          id: 1,
-          email: "mock@example.com",
-          name: "Mock User",
-        }
-      : null,
-    geolocation: "Moscow",
-  })
-})
+    return HttpResponse.json({
+      accessToken: isAuthenticated ? "mock_access_token" : null,
+      isAuthenticated,
+      user: isAuthenticated
+        ? {
+            id: 1,
+            email: "mock@example.com",
+            name: "Mock User",
+          }
+        : null,
+      geolocation: "Moscow",
+    })
+  }),
+
+  // Подключение хендлеров корзины
+  ...cartHandlers,
+  ...favoriteHandlers
 ]
