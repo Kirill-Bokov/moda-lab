@@ -12,6 +12,7 @@ import { ProductGrid } from "../components/productGrid/productGrid"
 import { SortSelector } from "../components/sortSelect/SortSelector"
 import { Pagination } from "../components/pagination/pagination"
 import { skipToken } from "@reduxjs/toolkit/query/react"
+import { useEffect } from "react"
 
 export default function Category() {
   const { categoryId, subcategoryId } = useParams<{ categoryId?: string; subcategoryId?: string }>()
@@ -24,6 +25,12 @@ export default function Category() {
 
   const page = Number(searchParams.get("page") ?? 1)
   const limit = Number(searchParams.get("limit") ?? 20)
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    })
+  }, [page])
 
   const {
     data: attributes,
