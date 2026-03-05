@@ -27,12 +27,12 @@ export default function CitySelector() {
   return (
     <>
       <div
-        className="flex items-center cursor-pointer select-none"
+        className="flex items-center cursor-pointer select-none group"
         onClick={openModal}
       >
-        <MapPinIcon className="w-8 h-8 text-gray-600 mr-2 transition-colors hover:text-teal-600" />
+        <MapPinIcon className="w-8 h-8 text-gray-600 mr-2 transition-colors group-hover:text-teal-600" />
         <div className="w-20 h-8 flex items-center overflow-hidden">
-          <span className="text-gray-600 hover:text-teal-600 transition-colors text-sm truncate">
+          <span className="text-gray-600 group-hover:text-teal-600 transition-colors text-sm truncate">
             {city}
           </span>
         </div>
@@ -55,13 +55,13 @@ export default function CitySelector() {
               </button>
               <h2 className="text-lg font-semibold mb-3">Выберите город</h2>
               <div className="flex flex-col gap-1">
-                {cities.map((c: string) => (
+                {cities.map((city: string) => (
                   <button
-                    key={c}
+                    key={city}
                     className="text-left px-3 py-1 rounded hover:bg-teal-100"
-                    onClick={() => handleSelectCity(c)}
+                    onClick={() => handleSelectCity(city)}
                   >
-                    {c}
+                    {city}
                   </button>
                 ))}
               </div>
