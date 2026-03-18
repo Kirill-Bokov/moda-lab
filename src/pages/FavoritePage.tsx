@@ -8,7 +8,7 @@ export default function FavoritePage() {
   if (isLoading) return <p>Загрузка избранного...</p>
   if (isError) return <p>Ошибка при загрузке избранного</p>
   if (!cart || cart.length === 0) return <p>Избранное пусто</p>
-console.log(cart)
+  
   return (
     <div className="max-w-4xl mx-auto p-4 flex flex-col gap-4">
       {cart.map(item => (

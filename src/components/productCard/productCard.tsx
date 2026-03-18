@@ -14,7 +14,6 @@ export function ProductCard({ product, onClick }: ProductCardProps) {
     <div
       className="border rounded-lg p-4 bg-white shadow-sm cursor-pointer hover:shadow-md transition"
       onClick={() => {
-    console.log("ProductCard кликнут, variantId:", product.variant_id)
     onClick(product.variant_id);
   }}
     >

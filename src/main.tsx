@@ -4,25 +4,32 @@ import { Provider } from "react-redux"
 import { store } from "./app/store"
 import App from "./App"
 import "./index.css"
-import { BrowserRouter } from "react-router-dom"
+import { BrowserRouter, HashRouter } from "react-router-dom"
 
+  const isDemo = import.meta.env.VITE_DEMO === "true"
 async function prepareApp() {
   const isDev = import.meta.env.DEV
-  const isDemo = import.meta.env.VITE_DEMO === "true"
+  const base = isDemo ? import.meta.env.BASE_URL : "/"
 
   if (isDev || isDemo) {
     const { worker } = await import("./mocks/browser")
-    await worker.start({ onUnhandledRequest: "bypass" })
+    await worker.start({
+      onUnhandledRequest: "bypass", serviceWorker: {
+        url: `${base}mockServiceWorker.js`
+      }
+    })
   }
 }
 
 prepareApp().then(() => {
+  const Router = isDemo ? HashRouter : BrowserRouter
+
   ReactDOM.createRoot(document.getElementById("root")!).render(
     <React.StrictMode>
       <Provider store={store}>
-        <BrowserRouter>
+        <Router>
           <App />
-        </BrowserRouter>
+        </Router>
       </Provider>
     </React.StrictMode>
   )
