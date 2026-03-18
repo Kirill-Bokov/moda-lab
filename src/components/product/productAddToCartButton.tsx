@@ -2,7 +2,8 @@ import { ShoppingBagIcon, HeartIcon } from "@heroicons/react/24/solid"
 import { useAddCartItemMutation } from "../../app/api/cartApi"
 import { useAddFavoriteItemMutation, useRemoveFavoriteItemMutation, useGetFavoriteQuery } from "../../app/api/favoriteApi"
 import { useState, useEffect } from "react"
-
+import { useAppDispatch } from "../../app/store"
+import { triggerAnimation } from "../../app/slices/favoriteAnimationSlice"
 type Props = {
   variantId: number
   selectedSizeId: number | null
@@ -32,7 +33,7 @@ export function ProductAddToCartButton({ variantId, selectedSizeId }: Props) {
     })
     setSizeError(false)
   }
-
+  const dispatch = useAppDispatch()
   const handleToggleFavorite = async () => {
     if (isFavorite && favoriteEntry) {
       await removeFavoriteItem(favoriteEntry.id)
@@ -41,6 +42,7 @@ export function ProductAddToCartButton({ variantId, selectedSizeId }: Props) {
         variantId,
         sizeId: selectedSizeId ?? null
       })
+      dispatch(triggerAnimation())
     }
   }
 
