@@ -5,8 +5,9 @@ import { store } from "./app/store"
 import App from "./App"
 import "./index.css"
 import { BrowserRouter, HashRouter } from "react-router-dom"
+import { AnimationProvider } from "./app/features/animationContext/AnimationProvider"
 
-  const isDemo = import.meta.env.VITE_DEMO === "true"
+const isDemo = import.meta.env.VITE_DEMO === "true"
 async function prepareApp() {
   const isDev = import.meta.env.DEV
   const base = isDemo ? import.meta.env.BASE_URL : "/"
@@ -28,7 +29,9 @@ prepareApp().then(() => {
     <React.StrictMode>
       <Provider store={store}>
         <Router>
-          <App />
+          <AnimationProvider>
+            <App />
+          </AnimationProvider>
         </Router>
       </Provider>
     </React.StrictMode>
