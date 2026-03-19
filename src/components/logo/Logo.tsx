@@ -10,7 +10,7 @@ export function Logo() {
   return (
     <div className="flex items-start h-full">
       <span
-        className="text-2xl font-semibold cursor-pointer select-none"
+        className="text-sm md:text-lg lg:text-2xl font-semibold cursor-pointer select-none"
         onClick={handleClick}
       >
         ModaLab

@@ -43,12 +43,12 @@ export default function GenderToggle() {
     )
   }
 
-  const genderButton = (value: string) =>
-    `cursor-pointer flex-1 text-center pb-1 mx-2 transition-colors relative ${
-      selectedGender === value
-        ? "border-b-2 border-teal-500 text-teal-600"
-        : "text-gray-700 hover:text-teal-500"
-    }`
+const genderButton = (value: string) =>
+  `cursor-pointer flex-1 text-center pb-1 mx-2 transition-colors relative
+   text-sm md:text-base
+   ${selectedGender === value
+     ? "border-b-2 border-teal-500 text-teal-600"
+     : "text-gray-700 hover:text-teal-500"}`
 
   return (
     <div className="flex justify-center mt-1">
