@@ -9,7 +9,6 @@ import {
   loadGenderAsFilter,
 } from "./features/filtersPersistance/filtersPersistance"
 import { useDispatch } from "react-redux"
-import favoriteAnimationReducer from "./slices/favoriteAnimationSlice"
 
 export const store = configureStore({
   reducer: {
@@ -17,7 +16,6 @@ export const store = configureStore({
     sort: sortReducer,
     auth: authReducer,
     [baseApi.reducerPath]: baseApi.reducer,
-    favoriteAnimation: favoriteAnimationReducer,
   },
   preloadedState: {
     filters:
