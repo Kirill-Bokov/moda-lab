@@ -2,7 +2,7 @@ export interface CartItemDto {
   id: number
   variantId: number
   sizeId: number | null
-  quantity: number
+  quantity?: number
 }
 
 export interface AddCartItemDto {
