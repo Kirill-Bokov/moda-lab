@@ -4,7 +4,6 @@ import type { CartItemDto, AddCartItemDto } from "../../types/cartTypes"
 export type FavoriteItemDto = CartItemDto
 export type AddFavoriteItemDto = Omit<AddCartItemDto, "quantity"> & {
   sizeId?: number | null
-  quantity?: number
 }
 
 export const favoriteApi = baseApi.injectEndpoints({
@@ -30,10 +29,9 @@ export const favoriteApi = baseApi.injectEndpoints({
             )
             if (!exists) {
               draft.push({
-                id: -Date.now(), // временный id
+                id: -Date.now(), 
                 variantId: arg.variantId,
-                sizeId: arg.sizeId ?? null,
-                quantity: arg.quantity ?? 1
+                sizeId: arg.sizeId ?? null
               })
             }
           })

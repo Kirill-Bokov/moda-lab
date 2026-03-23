@@ -38,7 +38,7 @@ export function FavoriteItem({ item }: Props) {
 
             <div className="flex-1 flex flex-col gap-1">
                 <h3 className="font-medium">{product.name}</h3>
-                <p>Размер: {size?.size ?? "не выбран"}</p>
+                <p>Размер: {size?.size ?? "Не выбран"}</p>
                 <p>Цена: {variant.price} ₽</p>
             </div>
             <FavoriteToCartButton item={item} />
