@@ -37,7 +37,7 @@ export interface AttributeValue {
 export type SortOption = {
   label: string
   sortBy: string
-  order: "asc" | "desc"
+  order: "asc" | "desc" | "rating"
 }
 
 export type PaginatedResponse<T> = {

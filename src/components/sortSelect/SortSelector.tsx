@@ -8,6 +8,7 @@ const options = [
   { label: "По умолчанию", sortBy: null, order: null },
   { label: "По возрастанию цены", sortBy: "price", order: "asc" as SortOrder },
   { label: "По убыванию цены", sortBy: "price", order: "desc" as SortOrder },
+  { label: "По оценкам", sortBy: "price", order: "rating" as SortOrder },
 ]
 
 export function SortSelector() {

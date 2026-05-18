@@ -45,7 +45,7 @@ export const catalogApi = createApi({
         limit: number
         filters?: FilterItem[]
         sortBy?: string
-        order?: "asc" | "desc"
+        order?: "asc" | "desc" | "rating"
       }
     >({
       query: ({ categoryId, page, limit, filters, sortBy, order }) => ({
