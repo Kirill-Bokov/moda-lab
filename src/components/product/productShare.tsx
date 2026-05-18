@@ -11,7 +11,7 @@ export function ProductShare({ sku }: Props) {
   }
 
   return (
-    <div className="mt-6">
+    <div className="mt-1">
       <h2 className="font-medium mb-3 flex items-center gap-2">
         Артикул <ProductSku sku={sku} />
       </h2>

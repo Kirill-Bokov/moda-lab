@@ -32,6 +32,7 @@ export interface ProductVariant {
   price: string
   images: ProductImage[]
   sizes: ProductSize[]
+  rating: ProductVariantRating
   attributeValues: VariantAttributeValue[]
 }
 
@@ -47,4 +48,10 @@ export interface ProductCard {
   description: string
   category: ProductCategory
   variants: ProductVariant[]
+}
+
+export interface ProductVariantRating {
+  id: number
+  avg_rating: number
+  ratings_number: number
 }
