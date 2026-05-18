@@ -10,6 +10,7 @@ import { ProductColorSelector } from "../components/product/productColorSelector
 import { ProductAddToCartButton } from "../components/product/productAddToCartButton"
 import { ProductShare } from "../components/product/productShare"
 import ProductSizes from "../components/product/productSizes"
+import { ProductRating } from "../components/product/productRating"
 
 export default function ProductPage() {
   const { variantId } = useParams<{ variantId?: string }>()
@@ -37,7 +38,7 @@ export default function ProductPage() {
   if (isLoading) return <p>Загрузка товара...</p>
   if (error) return <p>Ошибка при загрузке товара</p>
   if (!product || !activeVariant) return <p>Товар не найден</p>
-    
+
   return (
     <div className="container mx-auto px-4 py-6">
       <div className="flex gap-8">
@@ -76,9 +77,15 @@ export default function ProductPage() {
             selectedSizeId={selectedSize}
           />
 
+          <ProductRating
+            avg_rating={activeVariant.rating.avg_rating}
+            ratings_number={activeVariant.rating.ratings_number}
+          />
+
           <ProductShare
             sku={activeVariant.sku}
           />
+          
         </div>
       </div>
     </div>

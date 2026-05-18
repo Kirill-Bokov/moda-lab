@@ -57,6 +57,11 @@ export const productByIdMock = {
           },
         },
       ],
+      rating : {
+        id: 1,
+        avg_rating: 6.6,
+        ratings_number: 120
+      }
     },
     {
       id: 58,
@@ -105,6 +110,11 @@ export const productByIdMock = {
           },
         },
       ],
+      rating : {
+        id: 1,
+        avg_rating: 4.5,
+        ratings_number: 145
+      }
     },
   ],
 }
