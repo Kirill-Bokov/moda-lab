@@ -83,11 +83,6 @@ http.get("*/products/category/:categoryId", ({ params, request }) => {
 
   const getPrice = (p: any) => Number(p.variant_price)
 
-  const getRating = (p: any) => {
-    
-    return (p.variant_id % 50) / 10
-  }
-
   // -----------------------
   // SORTING LOGIC
   // -----------------------
@@ -99,9 +94,12 @@ http.get("*/products/category/:categoryId", ({ params, request }) => {
     })
   }
 
-  if (sortBy === "rating") {
-    sorted.sort((a, b) => getRating(b) - getRating(a))
-  }
+ if (sortBy === "rating") {
+  sorted.sort((a, b) =>
+    (b.variant_rating ?? 0) -
+    (a.variant_rating ?? 0)
+  )
+}
 
   // -----------------------
   // PAGINATION
