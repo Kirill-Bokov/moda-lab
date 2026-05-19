@@ -16,6 +16,8 @@ export type Product = {
   variant_sku: string
   variant_stock?: string
   sizes?: string
+  variant_rating?: number
+  variant_ratings_number?: number
 }
 
 export type FilterItem = {

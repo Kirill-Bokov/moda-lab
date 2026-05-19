@@ -1,4 +1,4 @@
-import { ProductCard } from "../productCard/productCard"
+import ProductCard from "../productCard/productCard"
 import type { Product } from "../../types/catalogTypes"
 
 export interface ProductGridProps {
@@ -6,7 +6,7 @@ export interface ProductGridProps {
   onVariantClick: (variantId: number) => void
 }
 
-export function ProductGrid({ items, onVariantClick }: ProductGridProps) {
+export function ProductGrid({ items }: ProductGridProps) {
   if (!items || items.length === 0) {
     return <p>Товары не найдены</p>
   }
@@ -17,7 +17,6 @@ export function ProductGrid({ items, onVariantClick }: ProductGridProps) {
         <ProductCard
           key={product.variant_id}
           product={product}
-          onClick={() => onVariantClick(product.variant_id)}
         />
       ))}
     </div>

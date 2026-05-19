@@ -60,34 +60,66 @@ export const handlers = [
     return HttpResponse.json(categoryAttributesMock)
   }),
 
-  // Продукты по категории с пагинацией
-  http.get("*/products/category/:categoryId", ({ params, request }) => {
-    if (!requireAuth(request)) {
-      return HttpResponse.json(
-        { message: "Unauthorized" },
-        { status: 401 }
-      )
-    }
+http.get("*/products/category/:categoryId", ({ params, request }) => {
+  if (!requireAuth(request)) {
+    return HttpResponse.json(
+      { message: "Unauthorized" },
+      { status: 401 }
+    )
+  }
 
-    const categoryId = Number(params.categoryId)
-    const url = new URL(request.url)
+  const categoryId = Number(params.categoryId)
+  const url = new URL(request.url)
 
-    const page = Number(url.searchParams.get("page") ?? 1)
-    const limit = Number(url.searchParams.get("limit") ?? 20)
+  const page = Number(url.searchParams.get("page") ?? 1)
+  const limit = Number(url.searchParams.get("limit") ?? 20)
 
-    const allItems = generateProducts(categoryId)
-    const pagedItems = allItems.slice((page - 1) * limit, page * limit)
+  const sortBy = url.searchParams.get("sortBy") ?? "rating"
+  const order = url.searchParams.get("order") ?? "desc"
 
-    return HttpResponse.json({
-      items: pagedItems,
-      meta: {
-        total: allItems.length,
-        page,
-        limit,
-        totalPages: Math.ceil(allItems.length / limit),
-      },
+  const allItems = generateProducts(categoryId)
+
+  let sorted = [...allItems]
+
+  const getPrice = (p: any) => Number(p.variant_price)
+
+  // -----------------------
+  // SORTING LOGIC
+  // -----------------------
+
+  if (!sortBy || sortBy === "price") {
+    sorted.sort((a, b) => {
+      const diff = getPrice(a) - getPrice(b)
+      return order === "desc" ? -diff : diff
     })
-  }),
+  }
+
+ if (sortBy === "rating") {
+  sorted.sort((a, b) =>
+    (b.variant_rating ?? 0) -
+    (a.variant_rating ?? 0)
+  )
+}
+
+  // -----------------------
+  // PAGINATION
+  // -----------------------
+
+  const start = (page - 1) * limit
+  const end = start + limit
+
+  const pagedItems = sorted.slice(start, end)
+
+  return HttpResponse.json({
+    items: pagedItems,
+    meta: {
+      total: allItems.length,
+      page,
+      limit,
+      totalPages: Math.ceil(allItems.length / limit),
+    },
+  })
+}),
 
   // Получение продукта по variantId
   http.get("*/products/:variantId", ({ request }) => {
