@@ -43,7 +43,7 @@ export default function HeaderSearch() {
           onChange={(e) => setValue(e.target.value)}
           placeholder="Поиск товаров..."
           autoComplete="off"
-          className="w-full rounded-md border border-gray-300 bg-white px-4 py-2 pl-10 text-sm placeholder-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition"
+          className="w-full rounded-md border border-gray-300 bg-white px-4 py-2 pl-10 text-sm placeholder-gray-400 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 outline-none transition"
         />
         <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
           <svg
